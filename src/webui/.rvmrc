@@ -1,0 +1,7 @@
+if [[ -d "$rvm_path/environments" && -s "$rvm_path/environments/ruby-1.9.2-p290@open-build-service" ]] ; then
+  \. "$rvm_path/environments/ruby-1.9.2-p290@open-build-service"
+else
+  rvm --create use  "ruby-1.9.2-p290@open-build-service"
+fi
+
+env ARCHFLAGS="-arch x86_64" bundle install
