@@ -60,6 +60,7 @@
 /src/webui/mkmf.log
 /src/webui/public/main/*.html
 /src/webui/public/documentation/obs
+/src/webui/webrat.log
 /src/webui-testsuite/results*
 
 # All the other crap that fits nowhere specifically
@@ -74,3 +75,4 @@
 nbproject
 *.vim
 *.pid
+.DS_Store
