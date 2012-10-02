@@ -77,3 +77,4 @@ nbproject
 *.vim
 *.pid
 .DS_Store
+.powrc
