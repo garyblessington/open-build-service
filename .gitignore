@@ -81,3 +81,4 @@ nbproject
 *.iws
 .idea/
 .DS_Store
+.powrc
