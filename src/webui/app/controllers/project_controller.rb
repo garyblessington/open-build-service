@@ -12,11 +12,11 @@ class ProjectController < ApplicationController
 
   before_filter :load_project_info, :only => [:show]
   before_filter :require_project, :except => [:repository_arch_list,
-    :autocomplete_projects, :autocomplete_incidents, :clear_failed_comment, :edit_comment_form, :index, 
+    :autocomplete_projects, :autocomplete_incidents, :clear_failed_comment, :edit_comment_form, :index,
     :list, :list_all, :list_public, :new, :package_buildresult, :save_new, :save_prjconf,
     :rebuild_time_png, :new_incident, :show]
   before_filter :require_login, :only => [:save_new, :toggle_watch, :delete, :new]
-  before_filter :require_available_architectures, :only => [:add_repository, :add_repository_from_default_list, 
+  before_filter :require_available_architectures, :only => [:add_repository, :add_repository_from_default_list,
                                                             :edit_repository, :update_target]
 
   before_filter :load_releasetargets, :only => [ :show, :incident_request_dialog ]
@@ -395,7 +395,7 @@ class ProjectController < ApplicationController
     redirect_back_or_to(:controller => "project", :action => "repositories", :project => @project) and return if not repo
     # Merge project repo's arch list with currently available arches from API. This needed as you want
     # to keep currently non-working arches in the project meta.
-    
+
     # Prepare a list of recommended architectures
     @recommended_arch_list = @available_architectures.each.map{|arch| arch.name if arch.recommended == "true"}
 
@@ -440,7 +440,7 @@ class ProjectController < ApplicationController
 
   def repository_state
     # Get cycles of the repository build dependency information
-    # 
+    #
     @repocycles = Hash.new
     @repositories = Array.new
     if params[:repository]
@@ -449,7 +449,7 @@ class ProjectController < ApplicationController
       @project.each_repository { |repository| @repositories << repository.name }
     end
 
-    @project.each_repository do |repository| 
+    @project.each_repository do |repository|
       next unless @repositories.include? repository.name
       @repocycles[repository.name] = Hash.new
 
@@ -508,34 +508,34 @@ class ProjectController < ApplicationController
       return
     end
     bdep = find_cached(BuilddepInfo, :project => @project.name, :repository => @repository, :arch => @arch)
-    jobs = find_cached(Jobhislist , :project => @project.name, :repository => @repository, :arch => @arch, 
+    jobs = find_cached(Jobhislist , :project => @project.name, :repository => @repository, :arch => @arch,
             :limit => @packages.size * 3, :code => ['succeeded', 'unchanged'])
     unless bdep and jobs
       flash[:error] = "Could not collect infos about repository #{@repository}/#{@arch}"
       redirect_to :action => :show, :project => @project
       return
     end
-    indir = Dir.mktmpdir 
+    indir = Dir.mktmpdir
     f = File.open(indir + "/_builddepinfo.xml", 'w')
-    f.write(bdep.dump_xml) 
+    f.write(bdep.dump_xml)
     f.close
     f = File.open(indir + "/_jobhistory.xml", 'w')
     f.write(jobs.dump_xml)
     f.close
     outdir = Dir.mktmpdir
-    logger.debug "cd #{Rails.root.join('vendor', 'diststats').to_s} && perl ./mkdiststats --srcdir=#{indir} --destdir=#{outdir} 
+    logger.debug "cd #{Rails.root.join('vendor', 'diststats').to_s} && perl ./mkdiststats --srcdir=#{indir} --destdir=#{outdir}
              --outfmt=xml #{@project.name}/#{@repository}/#{@arch} --width=910
              --buildhosts=#{@hosts} --scheduler=#{@scheduler}"
     fork do
       Dir.chdir(Rails.root.join('vendor', 'diststats'))
-      system("perl", "./mkdiststats", "--srcdir=#{indir}", "--destdir=#{outdir}", 
+      system("perl", "./mkdiststats", "--srcdir=#{indir}", "--destdir=#{outdir}",
              "--outfmt=xml", "#{@project.name}/#{@repository}/#{@arch}", "--width=910",
              "--buildhosts=#{@hosts}", "--scheduler=#{@scheduler}")
     end
     Process.wait
     f=File.open(outdir + "/rebuild.png")
     png=f.read
-    f.close 
+    f.close
     @pngkey = Digest::MD5.hexdigest( params.to_s )
     Rails.cache.write("rebuild-%s.png" % @pngkey, png)
     f=File.open(outdir + "/longest.xml")
@@ -1152,9 +1152,9 @@ class ProjectController < ApplicationController
     @limit_to_old = !(params[:limit_to_old].nil? || params[:limit_to_old] == 'false')
     @include_versions = !(!params[:include_versions].nil? && params[:include_versions] == 'false')
     filter_for_user = Person.find(params[:filter_for_user]) unless params[:filter_for_user].blank?
-    
-    attributes = find_hashed(PackageAttribute, :namespace => 'OBS', 
-      :name => 'ProjectStatusPackageFailComment', :project => @project, :expires_in => 2.minutes) 
+
+    attributes = find_hashed(PackageAttribute, :namespace => 'OBS',
+      :name => 'ProjectStatusPackageFailComment', :project => @project, :expires_in => 2.minutes)
     comments = Hash.new
     attributes.get("project").elements("package") do |p|
       p.elements("values") do |v|
@@ -1201,7 +1201,7 @@ class ProjectController < ApplicationController
       ret = []
       BsRequest.list({:states => 'declined', :roles => "target", :project => @project.name}).each do |r|
         ret << r.to_hash
-      end 
+      end
       ret
     end
     declined_requests.each do |r|
@@ -1214,14 +1214,14 @@ class ProjectController < ApplicationController
         key = target['package']
         unless declines[key] && declines[key][:id] > id
           declines[key] = {
-            :id => id, 
-            :project => source['project'], 
-            :package => source['package'], 
+            :id => id,
+            :project => source['project'],
+            :package => source['package'],
             :rev => source['rev'] }
         end
       end
     end
-    
+
     #logger.debug declines.inspect
 
     @develprojects = Hash.new
@@ -1316,10 +1316,10 @@ class ProjectController < ApplicationController
         end
 
         if currentpack['md5'] && currentpack['develmd5'] && currentpack['md5'] != currentpack['develmd5']
-          if declines[pname] && 
+          if declines[pname] &&
               declines[pname][:project] == dp.value(:project) &&
               declines[pname][:package] == dp.value(:name)
-            
+
             sourcerev = Package.current_rev(dp.value(:project), dp.value(:name))
             if sourcerev == declines[pname][:rev]
               currentpack['currently_declined'] = declines[pname][:id]
@@ -1374,8 +1374,8 @@ class ProjectController < ApplicationController
     respond_to do |format|
       format.json {
         render :text => JSON.pretty_generate(@packages), :layout => false, :content_type => "text/plain"
-      } 
-      format.html 
+      }
+      format.html
     end
   end
 
