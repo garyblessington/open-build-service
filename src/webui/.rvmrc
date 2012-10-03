@@ -1,7 +1,7 @@
-if [[ -d "$rvm_path/environments" && -s "$rvm_path/environments/ruby-1.9.2-p290@obs-webui" ]] ; then
-  \. "$rvm_path/environments/ruby-1.9.2-p290@obs-webui"
+if [[ -d "$rvm_path/environments" && -s "$rvm_path/environments/ruby-1.9.3-p194@obs-webui" ]] ; then
+  \. "$rvm_path/environments/ruby-1.9.3-p194@obs-webui"
 else
-  rvm --create use  "ruby-1.9.2-p290@obs-webui"
+  rvm --create use  "ruby-1.9.3-p194@obs-webui"
 fi
 
 env ARCHFLAGS="-arch x86_64" bundle install
