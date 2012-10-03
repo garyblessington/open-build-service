@@ -41,7 +41,7 @@ class ApplicationController < ActionController::API
 
   #contains current authentification method, one of (:proxy, :basic)
   attr_accessor :auth_method
-  
+
   hide_action :auth_method
   hide_action 'auth_method='
 
@@ -59,12 +59,12 @@ class ApplicationController < ActionController::API
     return true
   end
 
-  def http_anonymous_user 
+  def http_anonymous_user
     return User.find_by_login( "_nobody_" )
   end
 
   def extract_user_public
-    # to become _public_ special user 
+    # to become _public_ special user
     if CONFIG['allow_anonymous']
       @http_user = User.find_by_login( "_nobody_" )
       @user_permissions = Suse::Permission.new( @http_user )
@@ -160,7 +160,7 @@ class ApplicationController < ActionController::API
         #set password to the empty string in case no password is transmitted in the auth string
         passwd ||= ""
       else
-        if @http_user.nil? and CONFIG['allow_anonymous'] 
+        if @http_user.nil? and CONFIG['allow_anonymous']
           read_only_hosts = []
           read_only_hosts = CONFIG['read_only_hosts'] if CONFIG['read_only_hosts']
           read_only_hosts << CONFIG['webui_host'] if CONFIG['webui_host'] # this was used in config files until OBS 2.1
@@ -172,9 +172,9 @@ class ApplicationController < ActionController::API
               @user_permissions = Suse::Permission.new( @http_user )
               return true
             end
-	  else
-	    logger.info "anononymous configured, but #{read_only_hosts.inspect} does not include '#{request.env['REMOTE_HOST']}' '#{request.env['REMOTE_ADDR']}'"
-	  end
+      	  else
+      	    logger.info "anononymous configured, but #{read_only_hosts.inspect} does not include '#{request.env['REMOTE_HOST']}' '#{request.env['REMOTE_ADDR']}'"
+      	  end
 
           if login
             render_error :message => "User not yet registered", :status => 403,
@@ -185,7 +185,7 @@ class ApplicationController < ActionController::API
         end
 
         logger.debug "no authentication string was sent"
-        render_error( :message => "Authentication required", :status => 401 ) 
+        render_error( :message => "Authentication required", :status => 401 )
         return false
       end
 
@@ -204,7 +204,7 @@ class ApplicationController < ActionController::API
           ldap_info = nil # now fall through as if we'd not found a user
         rescue Exception
           logger.debug "#{login} not found in LDAP."
-          ldap_info = nil # now fall through as if we'd not found a user          
+          ldap_info = nil # now fall through as if we'd not found a user
         end
 
         if not ldap_info.nil?
@@ -291,7 +291,7 @@ class ApplicationController < ActionController::API
     return false
   end
 
-  hide_action :setup_backend  
+  hide_action :setup_backend
   def setup_backend
     # initialize backend on every request
     Suse::Backend.source_host = CONFIG['source_host']
@@ -326,18 +326,18 @@ class ApplicationController < ActionController::API
     end
 
     logger.debug "[backend] VOLLEY: #{path}"
-    Suse::Backend.start_test_backend 
+    Suse::Backend.start_test_backend
     backend_http = Net::HTTP.new(CONFIG['source_host'], CONFIG['source_port'])
     backend_http.read_timeout = 1000
 
     # we have to be careful with object life cycle. the actual data is
-    # deleted once the tempfile is garbage collected, but isn't kept alive 
+    # deleted once the tempfile is garbage collected, but isn't kept alive
     # as the send_file function only references the path to it. So we keep it
     # for ourselves. And once the controller is garbage collected, it should
     # be fine to unlink the data
     @volleyfile = Tempfile.new 'volley', :encoding => 'ascii-8bit'
     opts = { :url_based_filename => true }
-    
+
     backend_http.request_get(path) do |res|
       opts[:status] = res.code
       opts[:type] = res['Content-Type']
@@ -475,7 +475,7 @@ class ApplicationController < ActionController::API
     @exception = opt[:exception]
     @details = opt[:details]
     @errorcode = opt[:errorcode]
-    
+
     opt[:status] ||= 400
 
     if opt[:status].to_i == 401
@@ -485,7 +485,7 @@ class ApplicationController < ActionController::API
       @summary ||= "Not found"
       @errorcode ||= "not_found"
     end
-    
+
     @summary ||= "Internal Server Error"
 
     if @exception
