@@ -14,7 +14,7 @@ class User < ActiveRecord::Base
   has_many :messages
 
   @@ldap_search_con = nil
-  
+
   # users have a n:m relation to group
   has_and_belongs_to_many :groups, :uniq => true
   # users have a n:m relation to roles
@@ -35,12 +35,12 @@ class User < ActiveRecord::Base
   end
 
   # When a record object is initialized, we set the state, password
-  # hash type, indicator whether the password has freshly been set 
-  # (@new_password) and the login failure count to 
+  # hash type, indicator whether the password has freshly been set
+  # (@new_password) and the login failure count to
   # unconfirmed/false/0 when it has not been set yet.
   before_validation(:on => :create) do
 
-    self.state = User.states['unconfirmed'] if self.state.nil? 
+    self.state = User.states['unconfirmed'] if self.state.nil?
     self.password_hash_type = 'md5' if self.password_hash_type.to_s == ''
 
     @new_password = false if @new_password.nil?
@@ -67,7 +67,7 @@ class User < ActiveRecord::Base
   # again.
   after_save '@new_hash_type = false'
 
-  # Add accessors for "new_password" property. This boolean property is set 
+  # Add accessors for "new_password" property. This boolean property is set
   # to true when the password has been set and validation on this password is
   # required.
   attr_accessor :new_password
@@ -81,7 +81,7 @@ class User < ActiveRecord::Base
     write_attribute(:password, value)
     @new_password = true
   end
-  
+
   # Returns true if the password has been set after the User has been loaded
   # from the database and false otherwise
   def new_password?
@@ -89,9 +89,9 @@ class User < ActiveRecord::Base
   end
 
   # Method to update the password and confirmation at the same time. Call
-  # this method when you update the password from code and don't need 
+  # this method when you update the password from code and don't need
   # password_confirmation - which should really only be used when data
-  # comes from forms. 
+  # comes from forms.
   #
   # A ussage example:
   #
@@ -125,10 +125,10 @@ class User < ActiveRecord::Base
   # This method returns true if the user is assigned the role with one of the
   # role titles given as parameters. False otherwise.
   def has_role?(*role_titles)
-    obj = all_roles.detect do |role| 
+    obj = all_roles.detect do |role|
       role_titles.include?(role.title)
     end
-    
+
     return !obj.nil?
   end
 
@@ -144,8 +144,8 @@ class User < ActiveRecord::Base
     return permissions
   end
 
-  # This method creates a new registration token for the current user. Raises 
-  # a MultipleRegistrationTokens Exception if the user already has a 
+  # This method creates a new registration token for the current user. Raises
+  # a MultipleRegistrationTokens Exception if the user already has a
   # registration token assigned to him.
   #
   # Use this method instead of creating user_registration objects directly!
@@ -236,11 +236,11 @@ class User < ActiveRecord::Base
     return nil
   end
 
-  # This static method tries to update the entry with the given info in the 
+  # This static method tries to update the entry with the given info in the
   # active directory server.  Return the error msg if any error occurred
   def self.update_entry_ldap(login, newlogin, newemail, newpassword)
     logger.debug( " Modifying #{login} to #{newlogin} #{newemail} using ldap" )
-    
+
     if @@ldap_search_con.nil?
       @@ldap_search_con = initialize_ldap_con(CONFIG['ldap_search_user'], CONFIG['ldap_search_auth'])
     end
@@ -293,7 +293,7 @@ class User < ActiveRecord::Base
     return
   end
 
-  # This static method tries to add the new entry with the given name/password/mail info in the 
+  # This static method tries to add the new entry with the given name/password/mail info in the
   # active directory server.  Return the error msg if any error occurred
   def self.new_entry_ldap(login, password, mail)
     require 'ldap'
@@ -318,7 +318,7 @@ class User < ActiveRecord::Base
              LDAP.mod(LDAP::LDAP_MOD_ADD,'objectclass',CONFIG['ldap_object_class']),
              LDAP.mod(LDAP::LDAP_MOD_ADD,CONFIG['ldap_name_attr'],[login]),
              LDAP.mod(LDAP::LDAP_MOD_ADD,CONFIG['ldap_auth_attr'],[ldap_password]),
-             LDAP.mod(LDAP::LDAP_MOD_ADD,CONFIG['ldap_mail_attr'],[mail]),       
+             LDAP.mod(LDAP::LDAP_MOD_ADD,CONFIG['ldap_mail_attr'],[mail]),
             ]
     # Added required sn attr
     if defined?( CONFIG['ldap_sn_attr_required'] ) && CONFIG['ldap_sn_attr_required'] == :on
@@ -334,7 +334,7 @@ class User < ActiveRecord::Base
     return
   end
 
-  # This static method tries to delete the entry with the given login in the 
+  # This static method tries to delete the entry with the given login in the
   # active directory server.  Return the error msg if any error occurred
   def self.delete_entry_ldap(login)
     logger.debug( "Deleting #{login} using ldap" )
@@ -369,7 +369,7 @@ class User < ActiveRecord::Base
     return CONFIG['ldap_mode'] == :on && CONFIG['ldap_group_support'] == :on
   end
 
-  # This static method tries to find a group with the given gorup_title to check whether the group is in the LDAP server.
+  # This static method tries to find a group with the given group_title to check whether the group is in the LDAP server.
   def self.find_group_with_ldap(group)
     if defined?( CONFIG['ldap_group_objectclass_attr'] )
       filter = "(&(#{CONFIG['ldap_group_title_attr']}=#{group})(objectclass=#{CONFIG['ldap_group_objectclass_attr']}))"
@@ -377,7 +377,7 @@ class User < ActiveRecord::Base
       filter = "(#{CONFIG['ldap_group_title_attr']}=#{group})"
     end
     result = search_ldap(CONFIG['ldap_group_search_base'], filter)
-    if result.nil? 
+    if result.nil?
       logger.debug( "Fail to find group: #{group} in LDAP" )
       return false
     else
@@ -411,8 +411,8 @@ class User < ActiveRecord::Base
       return result
     end
   end
-  
-  # This static method performs the search with the given grouplist, user to return the groups that the user in 
+
+  # This static method performs the search with the given grouplist, user to return the groups that the user in
   def self.render_grouplist_ldap(grouplist, user = nil)
     result = Array.new
     if @@ldap_search_con.nil?
@@ -437,7 +437,7 @@ class User < ActiveRecord::Base
         user_dn = entry.dn
         if defined?( CONFIG['ldap_user_memberof_attr'] ) && entry.attrs.include?( CONFIG['ldap_user_memberof_attr'] )
           user_memberof_attr=entry.vals(CONFIG['ldap_user_memberof_attr'])
-        end            
+        end
       end
       if user_dn.empty?
         logger.debug( "Failed to find #{user} in ldap" )
@@ -462,15 +462,15 @@ class User < ActiveRecord::Base
 
       # search group
       if defined?( CONFIG['ldap_group_objectclass_attr'] )
-        filter = "(&(#{CONFIG['ldap_group_title_attr']}=#{group})(objectclass=#{CONFIG['ldap_group_objectclass_attr']}))" 
+        filter = "(&(#{CONFIG['ldap_group_title_attr']}=#{group})(objectclass=#{CONFIG['ldap_group_objectclass_attr']}))"
       else
         filter = "(#{CONFIG['ldap_group_title_attr']}=#{group})"
       end
-      
+
       # clean group_dn, group_member_attr
       group_dn = ""
       group_member_attr = ""
-      logger.debug( "Search group: #{filter}" )         
+      logger.debug( "Search group: #{filter}" )
       ldap_con.search( CONFIG['ldap_group_search_base'], LDAP::LDAP_SCOPE_SUBTREE, filter ) do |entry|
         group_dn = entry.dn
         if defined?( CONFIG['ldap_group_member_attr'] ) && entry.attrs.include?(CONFIG['ldap_group_member_attr'])
@@ -481,7 +481,7 @@ class User < ActiveRecord::Base
         logger.debug( "Failed to find #{group} in ldap" )
         next
       end
-      
+
       if user.nil?
         result << eachgroup
         next
@@ -505,7 +505,7 @@ class User < ActiveRecord::Base
     return result
   end
 
-  # This static method tries to update the password with the given login in the 
+  # This static method tries to update the password with the given login in the
   # active directory server.  Return the error msg if any error occurred
   def self.change_password_ldap(login, password)
     if @@ldap_search_con.nil?
@@ -549,7 +549,7 @@ class User < ActiveRecord::Base
 
 
   # This static method tries to find a user with the given login and
-  # password in the active directory server.  Returns nil unless 
+  # password in the active directory server.  Returns nil unless
   # credentials are correctly found using LDAP.
   def self.find_with_ldap(login, password)
     logger.debug( "Looking for #{login} using ldap" )
@@ -564,7 +564,7 @@ class User < ActiveRecord::Base
         ldap_info[1] = ar[2]
         logger.debug("login success for checking with ldap cache")
         return ldap_info
-      end 
+      end
     end
 
     # When the server closes the connection, @@ldap_search_con.nil? doesn't catch it
@@ -647,7 +647,7 @@ class User < ActiveRecord::Base
       else
         # Redo the search as the user for situations where the anon search may not be able to see attributes
         user_con.search( CONFIG['ldap_search_base'], LDAP::LDAP_SCOPE_SUBTREE,  user_filter ) do |entry|
-          if entry[CONFIG['ldap_mail_attr']] then 
+          if entry[CONFIG['ldap_mail_attr']] then
             ldap_info[0] = String.new(entry[CONFIG['ldap_mail_attr']][0])
           end
           if entry[CONFIG['ldap_name_attr']] then
@@ -670,18 +670,18 @@ class User < ActiveRecord::Base
     return hash_string(value) == self.password
   end
 
-  # Sets the last login time and saves the object. Note: Must currently be 
+  # Sets the last login time and saves the object. Note: Must currently be
   # called explicitely!
   def did_log_in
     self.last_logged_in_at = DateTime.now
     self.class.execute_without_timestamps { save }
   end
 
-  # Returns true if the the state transition from "from" state to "to" state 
-  # is valid. Returns false otherwise. +new_state+ must be the integer value 
+  # Returns true if the the state transition from "from" state to "to" state
+  # is valid. Returns false otherwise. +new_state+ must be the integer value
   # of the state as returned by +User.states['state_name']+.
   #
-  # Note that currently no permission checking is included here; It does not 
+  # Note that currently no permission checking is included here; It does not
   # matter what permissions the currently logged in user has, only that the
   # state transition is legal in principle.
   def state_transition_allowed?(from, to)
@@ -713,10 +713,10 @@ class User < ActiveRecord::Base
   validates_presence_of   :login, :email, :password, :password_hash_type, :state,
                           :message => 'must be given'
 
-  validates_uniqueness_of :login, 
+  validates_uniqueness_of :login,
                           :message => 'is the name of an already existing user.'
 
-  # Overriding this method to do some more validation: Password equals 
+  # Overriding this method to do some more validation: Password equals
   # password_confirmation, state an password hash type being in the range
   # of allowed values.
   def validate
@@ -737,12 +737,12 @@ class User < ActiveRecord::Base
     end
   end
 
-  validates_format_of    :login, 
-                         :with => %r{\A[\w \$\^\-\.#\*\+&'"]*\z}, 
+  validates_format_of    :login,
+                         :with => %r{\A[\w \$\^\-\.#\*\+&'"]*\z},
                          :message => 'must not contain invalid characters.'
-  validates_length_of    :login, 
+  validates_length_of    :login,
                          :in => 2..100, :allow_nil => true,
-                         :too_long => 'must have less than 100 characters.', 
+                         :too_long => 'must have less than 100 characters.',
                          :too_short => 'must have more than two characters.'
 
   # We want a valid email address. Note that the checking done here is very
@@ -750,7 +750,7 @@ class User < ActiveRecord::Base
   # language specific characters and user names can be about anything anyway.
   # However, this is not *so* bad since users have to answer on their email
   # to confirm their registration.
-  validates_format_of :email, 
+  validates_format_of :email,
                       :with => %r{\A([\w\-\.\#\$%&!?*\'\+=(){}|~]+)@([0-9a-zA-Z\-\.\#\$%&!?*\'=(){}|~]+)+\z},
                       :message => 'must be a valid email address.'
 
@@ -780,7 +780,7 @@ class User < ActiveRecord::Base
     def current
       Thread.current[:user]
     end
-    
+
     def current=(user)
       Thread.current[:user] = user
     end
@@ -798,8 +798,8 @@ class User < ActiveRecord::Base
     end
   end
 
-  # After validation, the password should be encrypted  
-  after_validation(:on => :create) do 
+  # After validation, the password should be encrypted
+  after_validation(:on => :create) do
     if errors.empty? and @new_password and !password.nil?
       # generate a new 10-char long hash only Base64 encoded so things are compatible
       self.password_salt = [Array.new(10){rand(256).chr}.join].pack("m")[0..9];
@@ -807,24 +807,24 @@ class User < ActiveRecord::Base
       # vvvvvv added this to maintain the password list for lighttpd
       write_attribute(:password_crypted, password.crypt("os"))
       #  ^^^^^^
-      
+
       # write encrypted password to object property
       write_attribute(:password, hash_string(password))
 
       # mark password as "not new" any more
       @new_password = false
       self.password_confirmation = nil
-      
+
       # mark the hash type as "not new" any more
       @new_hash_type = false
-    else 
+    else
       logger.debug "Error - skipping to create user #{errors.empty?} #{@new_password.inspect} #{password.inspect}"
     end
   end
 
   def render_axml( watchlist = false )
     builder = Nokogiri::XML::Builder.new
- 
+
     logger.debug "----------------- rendering person #{self.login} ------------------------"
     builder.person() do |person|
       person.login( self.login )
@@ -940,8 +940,8 @@ class User < ActiveRecord::Base
       raise ArgumentError, "illegal parameter type to User#is_in_group?: #{group.class}"
     end
     if User.ldapgroup_enabled?
-      return user_in_group_ldap?(self.login, group) 
-    else 
+      return user_in_group_ldap?(self.login, group)
+    else
       return !groups_users.where(group_id: group.id).first.nil?
     end
   end
@@ -954,7 +954,7 @@ class User < ActiveRecord::Base
       return true if role.static_permissions.where("static_permissions.title = ?", perm_string).first
     end
   end
-  
+
   # project is instance of Project
   def can_modify_project?(project, ignoreLock=nil)
     unless project.kind_of? Project
@@ -1118,7 +1118,7 @@ class User < ActiveRecord::Base
       rescue Exception
         logger.debug "Error occurred in searching user_group in ldap."
       end
-    end        
+    end
     return ldapgroups
   end
 
@@ -1130,7 +1130,7 @@ class User < ActiveRecord::Base
       grouplist.push group
     end
 
-    begin      
+    begin
       return true unless User.render_grouplist_ldap(grouplist, user).empty?
     rescue Exception
       logger.debug "Error occurred in searching user_group in ldap."
@@ -1138,12 +1138,12 @@ class User < ActiveRecord::Base
 
     return false
   end
-  
+
   def local_permission_check_with_ldap ( group_relationships )
     group_relationships.each do |r|
       return false if r.group.nil?
       #check whether current user is in this group
-      return true if user_in_group_ldap?(self.login, r.group) 
+      return true if user_in_group_ldap?(self.login, r.group)
     end
     logger.debug "Failed with local_permission_check_with_ldap"
     return false
@@ -1161,7 +1161,7 @@ class User < ActiveRecord::Base
     for rel in rels
       return false if rel.group.nil?
       #check whether current user is in this group
-      return true if user_in_group_ldap?(self.login, rel.group) 
+      return true if user_in_group_ldap?(self.login, rel.group)
     end
     logger.debug "Failed with local_role_check_with_ldap"
     return false
@@ -1236,8 +1236,8 @@ class User < ActiveRecord::Base
     if User.ldapgroup_enabled?
       return true if local_permission_check_with_ldap(groups.where("role_id in (?)", roles))
     end
-    
-    if parent 
+
+    if parent
       #check permission of parent project
       logger.debug "permission not found, trying parent project '#{parent.name}'"
       return has_local_permission?(perm_string, parent)
@@ -1254,12 +1254,12 @@ class User < ActiveRecord::Base
     projects = ProjectUserRoleRelationship.where(bs_user_id: id, role_id: role.id).select(:db_project_id).all.map {|ur| ur.db_project_id }
 
     # all projects where user is maintainer via a group
-    projects += ProjectGroupRoleRelationship.where(role_id: role.id).joins(:groups_users).where(groups_users: { user_id: self.id }).select(:db_project_id).all.map {|ur| ur.db_project_id } 
+    projects += ProjectGroupRoleRelationship.where(role_id: role.id).joins(:groups_users).where(groups_users: { user_id: self.id }).select(:db_project_id).all.map {|ur| ur.db_project_id }
 
     projects.uniq
   end
   protected :involved_projects_ids
-  
+
   def involved_projects
     # now filter the projects that are not visible
     return Project.where(id: involved_projects_ids)
@@ -1307,7 +1307,7 @@ class User < ActiveRecord::Base
     return case password_hash_type
            when 'md5' then Digest::MD5.hexdigest(value + self.password_salt)
            end
-  end 
+  end
 
   # this method returns a ldap object using the provided user name
   # and password
@@ -1317,16 +1317,16 @@ class User < ActiveRecord::Base
     ping = false
     server = nil
     count = 0
-    
+
     max_ldap_attempts = defined?( CONFIG['ldap_max_attempts'] ) ? CONFIG['ldap_max_attempts'] : 10
-    
+
     while !ping and count < max_ldap_attempts
       count += 1
       server = ldap_servers[rand(ldap_servers.length)]
       # Ruby only contains TCP echo ping.  Use system ping for real ICMP ping.
       ping = system("ping -c 1 #{server} >/dev/null 2>/dev/null")
     end
-    
+
     if count == max_ldap_attempts
       logger.debug("Unable to ping to any LDAP server: #{CONFIG['ldap_servers']}")
       return nil
