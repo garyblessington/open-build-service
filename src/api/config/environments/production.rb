@@ -35,7 +35,7 @@ CONFIG['ldap_max_attempts'] = 10
 
 # OVERRIDE with your company's ldap search base for the users who will use OBS
 CONFIG['ldap_search_base'] = "OU=Organizational Unit,DC=Domain Component"
-# Sam Account Name is the login name for LDAP 
+# Sam Account Name is the login name for LDAP
 CONFIG['ldap_search_attr'] = "sAMAccountName"
 # The attribute the users name is stored in
 CONFIG['ldap_name_attr']="cn"
@@ -53,7 +53,7 @@ CONFIG['ldap_search_auth']=""
 #CONFIG['ldap_user_filter']="(memberof=CN=group,OU=Groups,DC=Domain Component)"
 #
 # Note this is joined to the normal selection like so:
-# (&(#{LCONFIG['dap_search_attr']}=#{login})#{CONFIG['ldap_user_filter']})
+# (&(#{CONFIG['ldap_search_attr']}=#{login})#{CONFIG['ldap_user_filter']})
 # giving an ldap search of:
 #  (&(sAMAccountName=#{login})(memberof=CN=group,OU=Groups,DC=Domain Component))
 #
@@ -61,7 +61,7 @@ CONFIG['ldap_search_auth']=""
 
 # How to verify:
 #   :ldap = attempt to bind to ldap as user using supplied credentials
-#   :local = compare the credentials supplied with those in 
+#   :local = compare the credentials supplied with those in
 #            LDAP using CONFIG['ldap_auth_attr'] & CONFIG['ldap_auth_mech']
 #       CONFIG['ldap_auth_mech'] can be
 #       : md5
@@ -70,9 +70,9 @@ CONFIG['ldap_authenticate']=:ldap
 CONFIG['ldap_auth_attr']="userPassword"
 CONFIG['ldap_auth_mech']=:md5
 
-# Whether to update the user info to LDAP server, it does not take effect 
+# Whether to update the user info to LDAP server, it does not take effect
 # when CONFIG['ldap_mode'] is not set.
-# Since adding new entry operation are more depend on your slapd db define, it might not 
+# Since adding new entry operation are more depend on your slapd db define, it might not
 # compatiable with all LDAP server settings, you can use other LDAP client tools for your specific usage
 CONFIG['ldap_update_support'] = :off
 # ObjectClass, used for adding new entry

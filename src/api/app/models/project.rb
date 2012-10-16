@@ -70,7 +70,7 @@ class Project < ActiveRecord::Base
   def download_name
     self.name.gsub(/:/, ':/')
   end
-  
+
   def cleanup_before_destroy
     del_repo = Project.find_by_name("deleted").repositories[0]
     # find linking repositories
@@ -124,7 +124,7 @@ class Project < ActiveRecord::Base
 
     def is_remote_project?(name, skip_access=false)
       lpro = find_remote_project(name, skip_access)
-      
+
       lpro && lpro[0].remoteurl
     end
 
@@ -147,7 +147,7 @@ class Project < ActiveRecord::Base
             # if user is in group -> return true
             ret = ret + 1 if User.current.is_in_group?(grouprel.bs_group_id)
             # LDAP
-# FIXME: please do not do special things here for ldap. please cover this in a generic group modell.
+# FIXME: please do not do special things here for ldap. please cover this in a generic group model
             if defined?( CONFIG['ldap_mode'] ) && CONFIG['ldap_mode'] == :on
               if defined?( CONFIG['ldap_group_support'] ) && CONFIG['ldap_group_support'] == :on
                 if User.current.user_in_group_ldap?(group.bs_group_id)
@@ -167,7 +167,7 @@ class Project < ActiveRecord::Base
 
     # returns an object of project(local or remote) or raises an exception
     # should be always used when a project is required
-    # The return value is either a Project for local project or an xml 
+    # The return value is either a Project for local project or an xml
     # array for a remote project
     def get_by_name(name, opts = {})
       arel = where(name: name)
@@ -281,7 +281,7 @@ class Project < ActiveRecord::Base
         raise DeleteError.new "This maintenance project has incident projects and can therefore not be deleted."
       end
     end
-    
+
   end
 
   def update_from_xml(xmlhash, force=nil)
@@ -341,7 +341,7 @@ class Project < ActiveRecord::Base
       position += 1
     end
     #--- end of linked projects update  ---#
-    
+
     #--- devel project ---#
     self.develproject = nil
     if devel = xmlhash['devel']
@@ -374,7 +374,7 @@ class Project < ActiveRecord::Base
       prj = prj.develproject
       prj = self if prj && prj.id == self.id
     end
-    
+
     #--- maintenance-related parts ---#
     # The attribute 'type' is only set for maintenance and maintenance incident projects.
     # kind_element = xmlhash['kind)
@@ -402,7 +402,7 @@ class Project < ActiveRecord::Base
       if not Role.rolecache.has_key? person['role']
         raise SaveError, "illegal role name '#{person.role}'"
       end
-      
+
       if usercache.has_key? person['userid']
         # user has already a role in this project
         pcache = usercache[person['userid']]
@@ -419,7 +419,7 @@ class Project < ActiveRecord::Base
         usercache[person['userid']] = { person['role'] => :new }
       end
     end
-      
+
     #delete all roles that weren't found in the uploaded xml
     usercache.each do |user, roles|
       roles.each do |role, object|
@@ -427,9 +427,9 @@ class Project < ActiveRecord::Base
         object.delete
       end
     end
-    
+
     #--- end update users ---#
-    
+
     #--- update groups ---#
     groupcache = Hash.new
     self.project_group_role_relationships.each do |pgrr|
@@ -442,7 +442,7 @@ class Project < ActiveRecord::Base
       if not Role.rolecache.has_key? ge['role']
         raise SaveError, "illegal role name '#{ge['role']}'"
       end
-      
+
       if groupcache.has_key? ge['groupid']
         # group has already a role in this project
         pcache = groupcache[ge['groupid']]
@@ -471,16 +471,16 @@ class Project < ActiveRecord::Base
               end
             end
           end
-          
+
           unless group
             raise SaveError, "unknown group '#{ge['groupid']}'"
           end
         end
-        
+
         self.project_group_role_relationships.new(group: group, role: Role.rolecache[ge['role']])
       end
     end
-    
+
     #delete all roles that weren't found in the uploaded xml
     groupcache.each do |group, roles|
       roles.each do |role, object|
@@ -489,16 +489,16 @@ class Project < ActiveRecord::Base
       end
     end
     #--- end update groups ---#
-    
+
     #--- update flag group ---#
     update_all_flags( xmlhash )
-    
+
     #--- update repository download settings ---#
     dlcache = Hash.new
     self.downloads.each do |dl|
       dlcache["#{dl.architecture.name}"] = dl
     end
-    
+
     xmlhash.elements('download') do |dl|
       if dlcache.has_key? dl.arch.to_s
         logger.debug "modifying download element, arch: #{dl.arch.to_s}"
@@ -516,21 +516,21 @@ class Project < ActiveRecord::Base
       cur.save!
       dlcache.delete dl.arch.to_s
     end
-    
+
     dlcache.each do |arch, object|
       logger.debug "remove download entry #{arch}"
       object.destroy
     end
-    
+
     #--- update repositories ---#
     repocache = Hash.new
     self.repositories.each do |repo|
       repocache[repo.name] = repo unless repo.remote_project_name
     end
-    
+
     xmlhash.elements("repository") do |repo|
       was_updated = false
-      
+
       if not repocache.has_key? repo['name']
         logger.debug "adding repository '#{repo['name']}'"
         current_repo = self.repositories.new( :name => repo['name'] )
@@ -539,7 +539,7 @@ class Project < ActiveRecord::Base
         logger.debug "modifying repository '#{repo['name']}'"
         current_repo = repocache[repo['name']]
       end
-      
+
       #--- repository flags ---#
       # check for rebuild configuration
       if !repo.has_key? 'rebuild' and current_repo.rebuild
@@ -689,7 +689,7 @@ class Project < ActiveRecord::Base
     end
     repocache = nil
     #--- end update repositories ---#
-    
+
     save!
   end
 
@@ -698,7 +698,7 @@ class Project < ActiveRecord::Base
     # expire cache
     reset_cache
     @commit_opts ||= {}
-    
+
     if CONFIG['global_write_through']
       login = User.current.login unless @commit_opts[:login] # Allow to override if User.current isn't available yet
       path = "/source/#{self.name}/_meta?user=#{CGI.escape(login)}"
@@ -789,7 +789,7 @@ class Project < ActiveRecord::Base
     a = attribs.nobinary.joins(:attrib_type => :attrib_namespace).where("attrib_types.name = ? and attrib_namespaces.name = ?", name, namespace).first
     if a && a.readonly? # FIXME: joins make things read only
       a = attribs.where(:id => a.id).first
-    end 
+    end
     return a
   end
 
@@ -941,7 +941,7 @@ class Project < ActiveRecord::Base
        Rails.cache.fetch('meta_project_%d' % id) do
          render_axml(view)
        end
-    else 
+    else
       render_axml(view)
     end
   end
@@ -957,7 +957,7 @@ class Project < ActiveRecord::Base
     builder.project( project_attributes ) do |project|
       project.title( title )
       project.description( description )
-      
+
       self.linkedprojects.each do |l|
         if l.linked_db_project
            project.link( :project => l.linked_db_project.name )
@@ -1039,7 +1039,7 @@ class Project < ActiveRecord::Base
     end
     logger.debug "----------------- end rendering project #{name} ------------------------"
 
-    return builder.doc.to_xml :indent => 2, :encoding => 'UTF-8', 
+    return builder.doc.to_xml :indent => 2, :encoding => 'UTF-8',
                                :save_with => Nokogiri::XML::Node::SaveOptions::NO_DECLARATION |
                                              Nokogiri::XML::Node::SaveOptions::FORMAT
   end
@@ -1133,8 +1133,8 @@ class Project < ActiveRecord::Base
   # give out the XML for all repos/arch combos
   def expand_flags(pkg = nil)
     ret = Hash.new
-   
-    repos = repositories.not_remote.all 
+
+    repos = repositories.not_remote.all
 
     FlagHelper.flag_types.each do |flag_name|
       pkg_flags = nil
@@ -1623,7 +1623,7 @@ class Project < ActiveRecord::Base
       write_to_backend
     end
   end
- 
+
   def add_role(what, role)
     self.transaction do
       if what.kind_of? Group
