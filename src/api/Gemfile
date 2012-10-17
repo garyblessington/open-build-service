@@ -21,6 +21,8 @@ gem 'fast_xs'
 gem 'memcache-client', :require => false
 gem 'ruby-ldap', :require => false
 gem 'rake', '~>0.9.2'
+gem 'omniauth', '~>1.1.1'
+gem 'ruby-ldap', '~>0.9.12'
 
 group :test do
   gem 'database_cleaner'

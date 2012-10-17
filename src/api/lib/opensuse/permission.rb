@@ -6,9 +6,7 @@
 #
 
 module Suse
-
   class Permission
-
     def to_s
       return "OpenSUSE Permissions for user #{@user.login}"
     end

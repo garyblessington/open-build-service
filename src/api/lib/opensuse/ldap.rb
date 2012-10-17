@@ -1,6 +1,6 @@
-module Suse
-  require 'ldap'
+require 'ldap'
 
+module Suse
   class Ldap
     # referrals - Set to true for authentication with Windows 2003 AD
     # attempts_count - Max number of times to attempt to contact the LDAP servers
@@ -36,10 +36,9 @@ module Suse
     # group_title_attribute - The attribute the group name is stored in
 
     def self.enabled?
-      # This should replace all references to -- if defined?( CONFIG['ldap_mode'] ) && CONFIG['ldap_mode'] == :on
+      # This should replace all current application references to -- if defined?( CONFIG['ldap_mode'] ) && CONFIG['ldap_mode'] == :on
       ldap_mode = ApplicationSettings::LdapMode.first
-      return false if ldap_mode.nil?
-      ldap_mode.value
+      ldap_mode.nil? ? false : ldap_mode.value
     end
 
     def authenticate!
