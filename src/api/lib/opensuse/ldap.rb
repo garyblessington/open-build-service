@@ -41,15 +41,15 @@ module Suse
       ldap_mode.nil? ? false : ldap_mode.value
     end
 
-    def authenticate!
+    def self.authenticate!(login, passwd)
       begin
-        logger.debug( "Using LDAP to find #{login}" )
-        ldap_info = User.find_with_ldap( login, passwd )
+        #logger.debug( "Using LDAP to find #{login}" )
+        ldap_info = User.find_with_ldap(login, passwd)
       rescue LoadError
-        logger.warn "ldap_mode selected but 'ruby-ldap' module not installed."
+        #logger.warn "ldap_mode selected but 'ruby-ldap' module not installed."
         ldap_info = nil # now fall through as if we'd not found a user
       rescue Exception
-        logger.debug "#{login} not found in LDAP."
+        #logger.debug "#{login} not found in LDAP."
         ldap_info = nil # now fall through as if we'd not found a user
       end
 
@@ -64,14 +64,14 @@ module Suse
           end
         else
           if CONFIG['new_user_registration'] == "deny"
-            logger.debug( "No user found in database, creation disabled" )
-            render_error( :message => "User '#{login}' does not exist<br>#{errstr}", :status => 401 )
+            #logger.debug("No user found in database, creation disabled")
+            render_error(:message => "User '#{login}' does not exist<br>#{errstr}", :status => 401)
             @http_user=nil
             return false
           end
-          logger.debug( "No user found in database, creating" )
-          logger.debug( "Email: #{ldap_info[0]}" )
-          logger.debug( "Name : #{ldap_info[1]}" )
+          #logger.debug("No user found in database, creating")
+          #logger.debug("Email: #{ldap_info[0]}")
+          #logger.debug("Name : #{ldap_info[1]}")
           # Generate and store a fake pw in the OBS DB that no-one knows
           chars = ["A".."Z","a".."z","0".."9"].collect { |r| r.to_a }.join
           fakepw = (1..24).collect { chars[rand(chars.size)] }.pack("C*")
@@ -82,10 +82,10 @@ module Suse
             :email => ldap_info[0] )
           unless newuser.errors.empty?
             errstr = String.new
-            logger.debug("Creating User failed with: ")
+            #logger.debug("Creating User failed with: ")
             newuser.errors.each_full do |msg|
               errstr = errstr+msg
-              logger.debug(msg)
+              #logger.debug(msg)
             end
             render_error( :message => "Cannot create ldap userid: '#{login}' on OBS<br>#{errstr}",
               :status => 401 )
@@ -99,13 +99,13 @@ module Suse
           user_role = Role.find_by_title("User")
           newuser.roles << user_role
 
-          logger.debug( "saving new user..." )
+          #logger.debug("saving new user...")
           newuser.save
 
           @http_user = newuser
         end
       else
-        logger.debug( "User not found with LDAP, falling back to database" )
+        #logger.debug("User not found with LDAP, falling back to database")
         @http_user = User.find_with_credentials login, passwd
       end
     end

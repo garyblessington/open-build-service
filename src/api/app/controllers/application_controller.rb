@@ -2,6 +2,7 @@
 # Likewise, all the methods added will be available for all controllers.
 
 require 'opensuse/permission'
+require 'opensuse/ldap'
 require 'opensuse/backend'
 require 'opensuse/validator'
 require 'rexml/document'
@@ -190,12 +191,12 @@ class ApplicationController < ActionController::API
       end
 
       if CONFIG['ldap_mode'] == :on
-        # TODO!
         # disallow empty passwords to prevent LDAP lockouts
         if !passwd or passwd == ""
           render_error( :message => "User '#{login}' did not provide a password", :status => 401 ) and return false
         end
-        @http_user = Suse::Ldap.authencate!(login, passwd)
+
+        @http_user = Suse::Ldap.authenticate!(login, passwd)
       else
         @http_user = User.find_with_credentials(login, passwd)
       end
