@@ -1,5 +1,5 @@
 class ApplicationSettings::LdapUserNameAttribute < ApplicationSetting
-  validates :string_value, :presence => true
+  validates :string_value, :presence => true, :allow_nil => true
 
   def self.get
     first || create!(:string_value => 'cn')
@@ -10,6 +10,6 @@ class ApplicationSettings::LdapUserNameAttribute < ApplicationSetting
   end
 
   def value=(new_value)
-    self.string_value = new_value
+    self.string_value = new_value || ''
   end
 end

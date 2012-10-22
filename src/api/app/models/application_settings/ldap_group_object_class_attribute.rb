@@ -1,8 +1,8 @@
-class ApplicationSettings::LdapEntryBaseDn < ApplicationSetting
+class ApplicationSettings::LdapGroupObjectClassAttribute < ApplicationSetting
   validates :string_value, :presence => true
 
   def self.get
-    first || create!(:string_value => 'ou=OBSUSERS,dc=EXAMPLE,dc=COM')
+    first || create!(:string_value => 'groupOfNames')
   end
 
   def value

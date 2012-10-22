@@ -10,6 +10,6 @@ class ApplicationSettings::LdapSearchBase < ApplicationSetting
   end
 
   def value=(new_value)
-    self.string_value = new_value
+    self.string_value = new_value || ''
   end
 end
