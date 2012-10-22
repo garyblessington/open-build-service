@@ -111,33 +111,29 @@ module Suse
     end
 
     # Populates db-based config model with LDAP details from config file
-    # def self.copy_config_to_data!
-    #   ldap_config = LdapConfig.first || LdapConfig.new
-    #   ldap_config.attributes = {
-    #     :mode => CONFIG['ldap_mode'] == :on,
-    #     :referrals => CONFIG['ldap_referrals'] == :on,
-    #     :maximum_attempts => CONFIG['ldap_max_attempts'],
-    #     :port => CONFIG['ldap_port'],
-    #     :search_base => CONFIG['ldap_search_base'],
-    #     :search_attribute => CONFIG['ldap_search_attr'],
-    #     :user_name_attribute => CONFIG['ldap_name_attr'],
-    #     :mail_attribute => CONFIG['ldap_mail_attr'],
-    #     :search_user => CONFIG['ldap_search_user'],
-    #     :search_auth => CONFIG['ldap_search_auth'],
-    #     :filter_users_by_group_name => CONFIG['ldap_user_filter'],
-    #     :authentication => CONFIG['ldap_authenticate'],
-    #     :authentication_attribute => CONFIG['ldap_auth_attr'],
-    #     :authentication_mechanism => CONFIG['ldap_auth_mech'],
-    #     :update_support => CONFIG['ldap_update_support'] == :on,
-    #     :object_class => CONFIG['ldap_object_class'],
-    #     :entry_base_dn => CONFIG['ldap_entry_base'],
-    #     :sn_attribute_required => CONFIG['ldap_sn_attr_required'] == :on,
-    #     :group_support => CONFIG['ldap_group_support'] == :on,
-    #     :group_search_base => CONFIG['ldap_group_search_base'],
-    #     :group_title_attribute => CONFIG['ldap_group_title_attr'],
-    #     :group_objectclass_attribute => CONFIG['ldap_group_objectclass_attr']
-    #   }
-    #   ldap_config.save
-    # end
+    def self.migrate_config_file_to_application_settings!
+      ApplicationSettings::LdapMode.init(CONFIG['ldap_mode'] == :on)
+      ApplicationSettings::LdapReferrals.init(CONFIG['ldap_referrals'] == :on)
+      ApplicationSettings::LdapMaximumAttempts.init(CONFIG['ldap_max_attempts'])
+      ApplicationSettings::LdapPort.init(CONFIG['ldap_port'] || 389)
+      ApplicationSettings::LdapSearchBase.init(CONFIG['ldap_search_base'])
+      ApplicationSettings::LdapSearchAttribute.init(CONFIG['ldap_search_attr'])
+      ApplicationSettings::LdapUserNameAttribute.init(CONFIG['ldap_name_attr'])
+      ApplicationSettings::LdapMailAttribute.init(CONFIG['ldap_mail_attr'])
+      ApplicationSettings::LdapSearchUser.init(CONFIG['ldap_search_user'])
+      ApplicationSettings::LdapSearchAuth.init(CONFIG['ldap_search_auth'])
+      ApplicationSettings::LdapFilterUsersByGroupName.init(CONFIG['ldap_user_filter'])
+      ApplicationSettings::LdapAuthentication.init(CONFIG['ldap_authenticate'] == :on)
+      ApplicationSettings::LdapAuthenticationAttribute.init(CONFIG['ldap_auth_attr'])
+      ApplicationSettings::LdapAuthenticationMechanism.init(CONFIG['ldap_auth_mech'])
+      ApplicationSettings::LdapUpdateSupport.init(CONFIG['ldap_update_support'] == :on)
+      ApplicationSettings::LdapObjectClass.init(CONFIG['ldap_object_class'])
+      ApplicationSettings::LdapEntryBaseDn.init(CONFIG['ldap_entry_base'])
+      ApplicationSettings::LdapSnAttributeRequired.init(CONFIG['ldap_sn_attr_required'] == :on)
+      ApplicationSettings::LdapGroupSupport.init(CONFIG['ldap_group_support'] == :on)
+      ApplicationSettings::LdapGroupSearchBase.init(CONFIG['ldap_group_search_base'])
+      ApplicationSettings::LdapGroupTitleAttribute.init(CONFIG['ldap_group_title_attr'])
+      ApplicationSettings::LdapGroupObjectClassAttribute.init(CONFIG['ldap_group_objectclass_attr'])
+    end
   end
 end

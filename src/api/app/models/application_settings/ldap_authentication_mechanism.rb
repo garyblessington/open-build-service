@@ -1,4 +1,4 @@
-class ApplicationSettings::LdapAuthentication < ApplicationSetting
+class ApplicationSettings::LdapAuthenticationMechanism < ApplicationSetting
   validates :string_value, :inclusion => { :in => ['md5', 'cleartext'] }
 
   def self.get
@@ -10,6 +10,6 @@ class ApplicationSettings::LdapAuthentication < ApplicationSetting
   end
 
   def value=(new_value)
-    self.string_value = new_value
+    self.string_value = new_value || ''
   end
 end
