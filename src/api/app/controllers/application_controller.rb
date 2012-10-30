@@ -95,8 +95,29 @@ class ApplicationController < ActionController::API
 
     @http_user, message = auth_engine.authenticate
 
+    if @http_user.nil? && auth_engine.is_a?(Opensuse::Authentication::IchainEngine) && auth_engine.user_login
+      if CONFIG['new_user_registration'] == "deny"
+        logger.debug( "No user found in database, creation disabled" )
+        message = "User 'CONFG' does not exist"
+      end
+      state = User.states['confirmed']
+      state = User.states['unconfirmed'] if CONFIG['new_user_registration'] == "confirmation"
+      # Generate and store a fake pw in the OBS DB that no-one knows
+      # FIXME: we should allow NULL passwords in DB, but that needs user management cleanup
+      chars = ["A".."Z","a".."z","0".."9"].collect { |r| r.to_a }.join
+      fakepw = (1..24).collect { chars[rand(chars.size)] }.pack("a"*24)
+      @http_user = User.create(
+        :login => proxy_user,
+        :password => fakepw,
+        :password_confirmation => fakepw,
+        :state => state
+      )
+
+      @http_user.update_user_info_from_proxy_env(request.env) unless @http_user.nil?
+    end
+
     if @http_user.nil?
-      render_error( :message => "Unknown user '#{login}' or invalid password", :status => 401 ) and return false
+      render_error( :message => message, :status => 401 ) and return false
     else
       if @http_user.state == User.states['ichainrequest'] or @http_user.state == User.states['unconfirmed']
         render_error :message => "User is registered but not yet approved.", :status => 403,
