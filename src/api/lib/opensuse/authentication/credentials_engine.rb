@@ -4,6 +4,7 @@ module Opensuse
       include Opensuse::Authentication::Logger
 
       attr_reader :configuration, :environment
+      attr_accessor :user_login
 
       def initialize(configuration, environment)
         @configuration = configuration
@@ -26,6 +27,8 @@ module Opensuse
 
         if authorization && authorization[0] == "Basic"
           login, password = Base64.decode64(authorization[1]).split(':', 2)[0..1]
+
+          user_login = login
 
           user = User.find_with_credentials(login, password)
 
