@@ -24,23 +24,26 @@ module Opensuse
 
         logger.debug "AUTH: #{authorization.inspect}"
 
-      if authorization && authorization[0] == "Basic"
-        login, password = Base64.decode64(authorization[1]).split(':', 2)[0..1]
+        if authorization && authorization[0] == "Basic"
+          login, password = Base64.decode64(authorization[1]).split(':', 2)[0..1]
 
-        # Set password to the empty string in case no password is transmitted in the auth string
-        password ||= ""
+          # Set password to the empty string in case no password is transmitted in the auth string
+          password ||= ""
 
-        # Disallow empty passwords to prevent LDAP lockouts
-        return [nil, "User '#{login} did not provide a password'"] if !password || password == ""
+          # Disallow empty passwords to prevent LDAP lockouts
+          return [nil, "User '#{login} did not provide a password'"] if !password || password == ""
 
-        user = Suse::Ldap.authenticate!(login, password)
+          user = Suse::Ldap.authenticate!(login, password)
 
-        if user.nil?
-          user
-        else
-          [nil, "Unknown user '#{login'} or invalid password"]
+          if user.nil?
+            user
+          else
+            [nil, "Unknown user '#{login}' or invalid password"]
+          end
         end
       end
     end
   end
 end
+
+
