@@ -4,6 +4,7 @@ module Opensuse
       include Opensuse::Authentication::Logger
 
       attr_reader :configuration, :environment
+      attr_accessor :user_login
 
       def initialize(configuration, environment)
         @configuration = configuration
@@ -21,6 +22,8 @@ module Opensuse
           proxy_user = configuration['proxy_auth_test_user']
           logger.send :debug, "iChain user extracted from config: #{proxy_user}"
         end
+
+        user_login = proxy_user unless proxy_user.nil?
 
         # We're using a login proxy, there is no need to authenticate the user from crendentials
         # However we have to care for the status of the user that must not be unconfirmed or proxy requested
