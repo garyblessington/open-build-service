@@ -195,7 +195,6 @@ class ApplicationController < ActionController::API
         if !passwd or passwd == ""
           render_error( :message => "User '#{login}' did not provide a password", :status => 401 ) and return false
         end
-
         @http_user = Suse::Ldap.authenticate!(login, passwd)
       else
         @http_user = User.find_with_credentials(login, passwd)

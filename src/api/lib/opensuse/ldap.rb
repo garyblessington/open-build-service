@@ -2,6 +2,7 @@ require 'ldap'
 
 module Suse
   class Ldap
+    # Notes from config file options...
     # referrals - Set to true for authentication with Windows 2003 AD
     # attempts_count - Max number of times to attempt to contact the LDAP servers
     # port - LDAP port defaults to 636 for ldaps and 389 for ldap and ldap with StartTLS
@@ -72,6 +73,7 @@ module Suse
           #logger.debug("No user found in database, creating")
           #logger.debug("Email: #{ldap_info[0]}")
           #logger.debug("Name : #{ldap_info[1]}")
+
           # Generate and store a fake pw in the OBS DB that no-one knows
           chars = ["A".."Z","a".."z","0".."9"].collect { |r| r.to_a }.join
           fakepw = (1..24).collect { chars[rand(chars.size)] }.pack("C*")
