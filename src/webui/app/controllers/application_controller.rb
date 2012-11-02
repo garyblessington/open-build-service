@@ -31,13 +31,13 @@ class ApplicationController < ActionController::Base
       render file: Rails.root.join("public/402"), formats: [:html], status: 402, layout: false
     else
       if @user
-        render file: Rails.root.join("public/403"), formats: [:html], status: :forbidden, layout: false 
+        render file: Rails.root.join("public/403"), formats: [:html], status: :forbidden, layout: false
       else
         render file: Rails.root.join("public/401"), formats: [:html], status: :unauthorized, layout: false
       end
     end
   end
-  
+
   class ValidationError < Exception
     attr_reader :xml, :errors
 
@@ -258,7 +258,7 @@ class ApplicationController < ActionController::Base
     else arch
     end
   end
- 
+
   private
 
   def put_body_to_tempfile(xmlbody)
@@ -279,7 +279,7 @@ class ApplicationController < ActionController::Base
     xmlbody = String.new response.body
     xmlbody.gsub!(/[\n\r]/, "\n")
     xmlbody.gsub!(/&[^;]*sp;/, '')
-    
+
     # now to something fancy - patch HTML5 to look like xhtml 1.1
     xmlbody.gsub!(%r{ data-\S+=\"[^\"]*\"}, ' ')
     xmlbody.gsub!(%r{ autocomplete=\"[^\"]*\"}, ' ')
@@ -302,7 +302,7 @@ class ApplicationController < ActionController::Base
       ses = XHTML_XSD.validate(document)
       unless ses.empty?
         document = nil
-        errors << put_body_to_tempfile(xmlbody) 
+        errors << put_body_to_tempfile(xmlbody)
         ses.each do |err|
           errors << ("[%s:%s]" % [err.line, err.column]) + err.inspect
         end
@@ -382,7 +382,7 @@ class ApplicationController < ActionController::Base
     if params.has_key? :force_view
       # check if it's a reset
       if session[:force_view].to_s != 'mobile' && params[:force_view].to_s == 'mobile'
-        session.delete :force_view 
+        session.delete :force_view
       else
         session[:force_view] = params[:force_view]
       end
