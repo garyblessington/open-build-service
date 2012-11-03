@@ -2,6 +2,7 @@ module Opensuse
   module Authentication
     class LdapEngine
       include Opensuse::Authentication::Logger
+      include Opensuse::Authentication::HttpHeader
 
       attr_reader :configuration, :environment
       attr_accessor :user_login
@@ -12,18 +13,9 @@ module Opensuse
       end
 
       def authenticate
-        if environment.has_key? 'X-HTTP_AUTHORIZATION'
-          # try to get it where mod_rewrite might have put it
-          authorization = environment['X-HTTP_AUTHORIZATION'].to_s.split
-        elsif environment.has_key? 'Authorization'
-          # for Apace/mod_fastcgi with -pass-header Authorization
-          authorization = environment['Authorization'].to_s.split
-        elsif environment.has_key? 'HTTP_AUTHORIZATION'
-          # this is the regular location
-          authorization = environment['HTTP_AUTHORIZATION'].to_s.split
-        end
+        authorization = extract_authorization_from_header
 
-        logger.debug "AUTH: #{authorization.inspect}"
+        logger.send :debug, "AUTH: #{authorization.inspect}"
 
         if authorization && authorization[0] == "Basic"
           login, password = Base64.decode64(authorization[1]).split(':', 2)[0..1]
