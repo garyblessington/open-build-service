@@ -28,9 +28,28 @@ module Opensuse
           # Disallow empty passwords to prevent LDAP lockouts
           return [nil, "User '#{login} did not provide a password'"] if !password || password == ""
 
-          user = Suse::Ldap.authenticate!(login, password)
+          user = nil
+          ldap_info = nil
 
-          if user.nil?
+          begin
+            #logger.debug( "Using LDAP to find #{login}" )
+            ldap_info = User.find_with_ldap(login, passwd)
+          rescue LoadError
+            loggersend :warn, "ldap_mode selected but 'ruby-ldap' module not installed."
+          rescue Exception
+            logger.send :debug, "#{login} not found in LDAP."
+          end
+
+          if ldap_info
+            # We've found an LDAP authenticated user - find or create an OBS user database entry
+            user = User.find_by_login(login)
+            user.update_attributes(:email => ldap_info[0]) if user
+          else
+            logger.send :debug, "User not found with LDAP, falling back to database"
+            user = User.find_with_credentials(login, passwd)
+          end
+
+          if user
             user
           else
             [nil, "Unknown user '#{login}' or invalid password"]
