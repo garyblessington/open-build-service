@@ -107,8 +107,7 @@ class ApplicationController < ActionController::API
       state = User.states['unconfirmed'] if CONFIG['new_user_registration'] == "confirmation"
       # Generate and store a fake pw in the OBS DB that no-one knows
       # FIXME: we should allow NULL passwords in DB, but that needs user management cleanup
-      chars = ["A".."Z","a".."z","0".."9"].collect { |r| r.to_a }.join
-      fakepw = (1..24).collect { chars[rand(chars.size)] }.pack("a"*24)
+      fakepw = PasswordGenerator.generate_random_password
       @http_user = User.create(
         :login => proxy_user,
         :password => fakepw,
