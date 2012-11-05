@@ -22,7 +22,7 @@ module Opensuse
           logger.send :debug, "iChain user extracted from config: #{proxy_user}"
         end
 
-        user_login = proxy_user unless proxy_user.nil?
+        @user_login = proxy_user unless proxy_user.nil?
 
         # We're using a login proxy, there is no need to authenticate the user from crendentials
         # However we have to care for the status of the user that must not be unconfirmed or proxy requested
@@ -39,7 +39,7 @@ module Opensuse
         if user
           return user
         else
-          logger.log "No HTTP_X_USERNAME header from login proxy! Are we really using an authentication proxy?"
+          logger.send :error, "No HTTP_X_USERNAME header from login proxy! Are we really using an authentication proxy?"
           return [nil, "No user header found!"]
         end
       end
