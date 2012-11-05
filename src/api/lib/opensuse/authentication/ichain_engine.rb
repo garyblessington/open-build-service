@@ -9,7 +9,6 @@ module Opensuse
       def initialize(configuration, environment)
         @configuration = configuration
         @environment = environment
-
       end
 
       def authenticate
@@ -40,8 +39,8 @@ module Opensuse
         if user
           return user
         else
-          return [nil, "No user header found!"]
           logger.log "No HTTP_X_USERNAME header from login proxy! Are we really using an authentication proxy?"
+          return [nil, "No user header found!"]
         end
       end
     end
