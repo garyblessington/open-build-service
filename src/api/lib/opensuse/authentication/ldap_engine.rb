@@ -5,7 +5,7 @@ module Opensuse
       include Opensuse::Authentication::HttpHeader
 
       attr_reader :configuration, :environment
-      attr_accessor :user_login
+      attr_accessor :user_login, :ldap_user_info
 
       def initialize(configuration, environment)
         @configuration = configuration
@@ -33,7 +33,7 @@ module Opensuse
 
           begin
             #logger.debug( "Using LDAP to find #{login}" )
-            ldap_info = User.find_with_ldap(login, passwd)
+            ldap_info, ldap_user_info = User.find_with_ldap(login, passwd)
           rescue LoadError
             loggersend :warn, "ldap_mode selected but 'ruby-ldap' module not installed."
           rescue Exception
@@ -44,9 +44,6 @@ module Opensuse
             # We've found an LDAP authenticated user - find or create an OBS user database entry
             user = User.find_by_login(login)
             user.update_attributes(:email => ldap_info[0]) if user
-          else
-            logger.send :debug, "User not found with LDAP, falling back to database"
-            user = User.find_with_credentials(login, passwd)
           end
 
           if user
