@@ -118,6 +118,24 @@ class ApplicationController < ActionController::API
       @http_user.update_user_info_from_proxy_env(request.env) unless @http_user.nil?
     end
 
+    if @http_user.nil? && auth_engine.is_a?(Opensuse::Authentication::LdapEngine) && auth_engine.user_login
+      if auth_engine.user_ldap_info.blank?
+        rails.logger.debug("User not found with LDAP, falling back to database")
+        auth_engine = Opensuse::Authentication::CredentialsEngine.new(CONFIG, request.env)
+        @http_user, message = auth_engine.authenticate
+      else
+        if CONFIG['new_user_registration'] == "deny"
+          message = "User '#{auth_engine.user_login}' does not exist"
+        else
+          @http_user = User.create_from_ldap_info(auth_engine.user_login, auth_engine.user_ldap_info)
+
+          if @http_user.blank?
+            message = "Cannot create LDAP userid: '#{auth_engine.user_login}' on OBS"
+          end
+        end
+      end
+    end
+
     if @http_user.nil?
       render_error( :message => message, :status => 401 ) and return false
     else
