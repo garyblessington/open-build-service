@@ -12,11 +12,11 @@ module Opensuse
       end
 
       def authenticate
-        read_only_hosts = configuration['read_only_hosts'] || []
+        read_only_hosts = Array(configuration['read_only_hosts']) || []
         read_only_hosts << configuration['webui_host'] if configuration['webui_host'] # This was used in config files until OBS 2.1
 
         if read_only_hosts.include?(environment['REMOTE_HOST']) || read_only_hosts.include?(environment['REMOTE_ADDR'])
-          if environment['HTTP_USER_AGENT'].match(/^(obs-webui|obs-software)/)
+          if environment['HTTP_USER_AGENT'] && environment['HTTP_USER_AGENT'].match(/^(obs-webui|obs-software)/)
            return User.find_by_login("_nobody_")
           end
         else
