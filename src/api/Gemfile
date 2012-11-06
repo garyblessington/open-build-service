@@ -37,4 +37,5 @@ end
 
 group :development do
   gem 'pry', '>= 0.9.12'
+  gem 'mocha', '~> 0.12', :require => false
 end
