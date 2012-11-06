@@ -20,15 +20,18 @@ module Opensuse
         if authorization && authorization[0] == "Basic"
           login, password = Base64.decode64(authorization[1]).split(':', 2)[0..1]
 
-          user_login = login
+          @user_login = login
 
           user = User.find_with_credentials(login, password)
 
           if user.nil?
-            [nil, "Unknown user '#{login}'' or invalid password"]
+            [nil, "Unknown user '#{login}' or invalid password"]
           else
             user
           end
+        else
+          logger.send :debug, "No authentication string was sent"
+          [nil, "Authentication required"]
         end
       end
     end
