@@ -1,10 +1,10 @@
 OBSWebUI::Application.routes.draw do
 
-  cons = { :project => %r{[^\/]*}, :package => %r{[^\/]*}, :binary => %r{[^\/]*}, 
+  cons = { :project => %r{[^\/]*}, :package => %r{[^\/]*}, :binary => %r{[^\/]*},
     :user => %r{[^\/]*}, :login => %r{[^\/]*}, :title => %r{[^\/]*}, :service => %r{\w[^\/]*},
     :repository => %r{[^\/]*}, :filename => %r{[^\/]*}, :arch => %r{[^\/]*}, :id => %r{\d*} }
 
-  controller :main do 
+  controller :main do
     match '/' => :index
     match 'main/systemstatus' => :systemstatus
     match 'main/news' => :news
@@ -19,6 +19,8 @@ OBSWebUI::Application.routes.draw do
     match 'main/delete_message_dialog' => :delete_message_dialog
     match 'main/delete_message' => :delete_message, via: :post
   end
+
+  resources :application_settings
 
   controller :attribute do
     match 'attribute/edit' => :edit

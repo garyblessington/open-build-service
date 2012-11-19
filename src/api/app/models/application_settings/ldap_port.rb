@@ -1,5 +1,5 @@
 class ApplicationSettings::LdapPort < ApplicationSetting
-  validates :integer_value, :presence => true
+  validates :integer_value, :presence => true, numericality: { only_integer: true }
 
   def self.get
     first || create!(:integer_value => 389)

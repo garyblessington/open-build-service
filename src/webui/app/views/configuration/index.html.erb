@@ -8,7 +8,6 @@
     <p>
       Configure your Open Build Service instance.
     </p>
-
   <% if @available_architectures && @available_architectures.has_elements?  %>
   <h3>Available Scheduler Architectures</h3>
     <p>
@@ -53,5 +52,11 @@
     </p>
     <p><%= submit_tag 'Update' %></p>
   <% end %>
+
+  <h3>Actions</h3>
+  <ul>
+    <li><%= link_to('Manage configuration options', application_settings_path) %></li>
+  </ul>
+
   </div>
 </div>
