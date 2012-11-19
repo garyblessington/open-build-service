@@ -4,6 +4,13 @@ OBSApi::Application.routes.draw do
 
     match '/' => 'main#index'
 
+    resources :application_settings do
+      collection do
+        put 'update_application_settings'
+      end
+    end
+    #resource :application_settings
+
     resource :configuration, :only => [:show, :update]
 
     cons = { :project => %r{[^\/]*}, :package => %r{[^\/]*}, :binary => %r{[^\/]*}, :user => %r{[^\/]*}, :login => %r{[^\/]*}, :title => %r{[^\/]*}, :service => %r{\w[^\/]*},
@@ -28,7 +35,7 @@ OBSApi::Application.routes.draw do
     match 'service/:service' => 'service#index_service', :constraints => cons
 
     ### /source
-    
+
     match 'source/:project/:package/_wizard' => 'wizard#package_wizard', :constraints => cons
     match 'source/:project/:package/_tags' => 'tag#package_tags', :constraints => cons
     match 'source/:project/_tags' => 'tag#project_tags', :constraints => cons
@@ -41,7 +48,7 @@ OBSApi::Application.routes.draw do
       match 'test/test_start' => :test_start
       match 'test/test_end' => :test_end
     end
-    
+
     controller :source do
 
       match 'source' => :index
@@ -93,7 +100,7 @@ OBSApi::Application.routes.draw do
       match 'tag/:tag/_projects' => :get_projects_by_tag
       match 'tag/:tag/_packages' => :get_packages_by_tag
       match 'tag/:tag/_all' => :get_objects_by_tag
-      
+
       #Get a tagcloud including all tags.
       match 'tag/tagcloud' => :tagcloud
 
@@ -120,7 +127,7 @@ OBSApi::Application.routes.draw do
 
     #Get tags by user.
     match 'user/:user/tags/_tagcloud' => 'tag#tagcloud', :constraints => cons
-      
+
     #Get tags for a certain object by user.
     match 'user/:user/tags/:project' => 'tag#tags_by_user_and_object', :constraints => cons
     match 'user/:user/tags/:project/:package' => 'tag#tags_by_user_and_object', :constraints => cons
@@ -145,7 +152,7 @@ OBSApi::Application.routes.draw do
       #
       match 'statistics/rating/:project' => :rating, :constraints => cons
       match 'statistics/rating/:project/:package' => :rating, :constraints => cons
-      
+
       # Activity
       #
       match 'statistics/activity/:project' => :activity, :constraints => cons
@@ -176,7 +183,7 @@ OBSApi::Application.routes.draw do
       # Routes for status_messages
       # --------------------------
       match 'status_message' => 'status#messages'
-      
+
       match 'status/messages' => :messages
       match 'status/messages/:id' => :messages, :constraints => cons
       match 'status/workerstatus' => :workerstatus
@@ -225,15 +232,15 @@ OBSApi::Application.routes.draw do
 
     match 'build/:project/:repository/:arch/:package/_status' => 'build#index',
     :constraints => cons
-    match 'build/:project/:repository/:arch/:package/_log' => 'build#logfile', 
+    match 'build/:project/:repository/:arch/:package/_log' => 'build#logfile',
     :constraints => cons
-    match 'build/:project/:repository/:arch/:package/_buildinfo' => 'build#buildinfo', 
+    match 'build/:project/:repository/:arch/:package/_buildinfo' => 'build#buildinfo',
     :constraints => cons
     match 'build/:project/:repository/:arch/:package/_history' => 'build#index',
     :constraints => cons
-    match 'build/:project/:repository/:arch/:package/:filename' => 'build#file', 
+    match 'build/:project/:repository/:arch/:package/:filename' => 'build#file',
     :constraints => cons
-    match 'build/:project/:repository/:arch/_builddepinfo' => 'build#builddepinfo', 
+    match 'build/:project/:repository/:arch/_builddepinfo' => 'build#builddepinfo',
     :constraints => cons
     match 'build/:project/:repository/:arch/:package' => 'build#index', :constraints => cons
     match 'build/:project/:repository/_buildconfig' => 'build#index', :constraints => cons
@@ -255,9 +262,9 @@ OBSApi::Application.routes.draw do
     match 'published/' => 'published#index'
 
     ### /request
-    
+
     resources :request, :only => [:index, :show, :update, :create, :destroy]
-    
+
     match 'request/:id' => 'request#command'
 
     ### /lastevents
@@ -273,7 +280,7 @@ OBSApi::Application.routes.draw do
     resources :distributions, only: [:index, :show, :create, :destroy]
 
     ### /public
-    
+
     controller :public do
       match 'public' => :index
       match 'public/build/:project' => :build, :constraints => cons

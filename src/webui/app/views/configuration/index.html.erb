@@ -13,6 +13,7 @@ as well as managing users and groups.
     <ul>
       <li><%= link_to('Manage users and groups', get_frontend_url_for(:controller => "active_rbac/user/list")) %></li>
       <li><%= link_to('Connect to a remote OBS instance', :action => 'connect_instance') %></li>
+      <li><%= link_to('Manage configuration options', application_settings_path) %></li>
     </ul>
   </div>
   <% if @available_architectures && @available_architectures.has_elements?  %>
