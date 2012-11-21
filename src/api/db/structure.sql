@@ -289,9 +289,11 @@ CREATE TABLE `groups` (
   `updated_at` datetime DEFAULT NULL,
   `title` varchar(200) CHARACTER SET utf8 NOT NULL DEFAULT '',
   `parent_id` int(11) DEFAULT NULL,
+  `ldap_group_member_of_validation` tinyint(1) DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `groups_parent_id_index` (`parent_id`),
-  KEY `index_groups_on_title` (`title`)
+  KEY `index_groups_on_title` (`title`),
+  KEY `index_groups_on_ldap_group_member_of_validation` (`ldap_group_member_of_validation`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 CREATE TABLE `groups_roles` (
@@ -1017,6 +1019,8 @@ INSERT INTO schema_migrations (version) VALUES ('20120417115800');
 
 INSERT INTO schema_migrations (version) VALUES ('20120418121859');
 
+INSERT INTO schema_migrations (version) VALUES ('20120424141421');
+
 INSERT INTO schema_migrations (version) VALUES ('20120529150500');
 
 INSERT INTO schema_migrations (version) VALUES ('20120903122955');
@@ -1062,6 +1066,8 @@ INSERT INTO schema_migrations (version) VALUES ('20130111085930');
 INSERT INTO schema_migrations (version) VALUES ('20130220160000');
 
 INSERT INTO schema_migrations (version) VALUES ('20130301100000');
+
+INSERT INTO schema_migrations (version) VALUES ('20121120155310');
 
 INSERT INTO schema_migrations (version) VALUES ('21');
 

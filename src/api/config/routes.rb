@@ -9,7 +9,6 @@ OBSApi::Application.routes.draw do
         put 'update_application_settings'
       end
     end
-    #resource :application_settings
 
     resource :configuration, :only => [:show, :update]
 
@@ -29,6 +28,7 @@ OBSApi::Application.routes.draw do
     ### /group
     match 'group' => 'group#index'
     match 'group/:title' => 'group#group', :constraints => cons
+    resources :group
 
     ### /service
     match 'service' => 'service#index'

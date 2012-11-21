@@ -31,13 +31,14 @@ class Group < ActiveRecord::Base
   has_and_belongs_to_many :roles, :uniq => true
 
   attr_accessible :title
-  
+
   class << self
     def render_group_list(user=nil)
 
        if user
          user = User.find_by_login(user)
          return nil if user.nil?
+
          if User.ldapgroup_enabled?
            begin
              list = User.render_grouplist_ldap(Group.all, user.login)
@@ -62,10 +63,10 @@ class Group < ActiveRecord::Base
       builder = Nokogiri::XML::Builder.new
       builder.directory( :count => list.length ) do |dir|
         list.each do |g|
-          dir.entry( :name => g.title )
+          dir.entry(:name => g.title, :ldap_group_member_of_validation => g.ldap_group_member_of_validation)
         end
       end
-      
+
       return builder.doc.to_xml :indent => 2, :encoding => 'UTF-8',
                                 :save_with => Nokogiri::XML::Node::SaveOptions::NO_DECLARATION |
                                  Nokogiri::XML::Node::SaveOptions::FORMAT
@@ -80,6 +81,7 @@ class Group < ActiveRecord::Base
 
   def update_from_xml( xmlhash )
     self.title = xmlhash.value('title')
+    self.ldap_group_member_of_validation = xmlhash.value('ldap_group_member_of_validation')
 
     # update user list
     cache = Hash.new
@@ -115,7 +117,8 @@ class Group < ActiveRecord::Base
     builder = Nokogiri::XML::Builder.new
 
     builder.group() do |group|
-      group.title( self.title )
+      group.title(self.title)
+      group.ldap_group_member_of_validation(self.ldap_group_member_of_validation)
 
       group.person do |person|
         self.groups_users.each do |gu|
@@ -149,7 +152,7 @@ class Group < ActiveRecord::Base
     projects.uniq
   end
   protected :involved_projects_ids
-  
+
   def involved_projects
     # now filter the projects that are not visible
     return Project.where(id: involved_projects_ids)
