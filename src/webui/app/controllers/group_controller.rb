@@ -39,7 +39,8 @@ class GroupController < ApplicationController
   def save
     group_opts = { :name => params[:name],
                    :title => params[:name],
-                   :members => params[:members]
+                   :members => params[:members],
+                   :ldap_group_member_of_validation => params[:ldap_group_member_of_validation]
                  }
     begin
       group = Group.new(group_opts)
@@ -55,14 +56,12 @@ class GroupController < ApplicationController
       redirect_to :controller => "group", :action => 'show', :group => params[:group]
     end
   end
-  
+
   def overwrite_group
     @displayed_group = @group
     group = find_cached(Group, params['group'] ) if params['group'] && !params['group'].empty?
     @displayed_group = group if group
   end
   private :overwrite_group
-
-
 
 end
