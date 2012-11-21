@@ -41,7 +41,7 @@ class GroupController < ApplicationController
     end
 
     unless request.get? or @http_user.is_admin?
-      render_error :status => 403, :errorcode => "group_modification_not_permitted", :message => "Requires admin privileges" 
+      render_error :status => 403, :errorcode => "group_modification_not_permitted", :message => "Requires admin privileges"
       return
     end
 
@@ -52,7 +52,6 @@ class GroupController < ApplicationController
       return
 
     elsif request.put?
-
       group = Group.find_by_title(params[:title])
       if group.nil?
         group = Group.create(:title => params[:title])
@@ -72,7 +71,7 @@ class GroupController < ApplicationController
         user = User.find_by_login!(params[:userid])
         group.remove_user user
       else
-        render_error :status => 400, :errorcode => "unknown_command", :message => "cmd must be set to add_user or remove_user" 
+        render_error :status => 400, :errorcode => "unknown_command", :message => "cmd must be set to add_user or remove_user"
         return
       end
 
