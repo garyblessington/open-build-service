@@ -242,7 +242,7 @@ class User < ActiveRecord::Base
     logger.debug( " Modifying #{login} to #{newlogin} #{newemail} using ldap" )
 
     if @@ldap_search_con.nil?
-      @@ldap_search_con = initialize_ldap_con(CONFIG['ldap_search_user'], CONFIG['ldap_search_auth'])
+      @@ldap_search_con = initialize_ldap_con
     end
     ldap_con = @@ldap_search_con
     if ldap_con.nil?
@@ -299,7 +299,7 @@ class User < ActiveRecord::Base
     require 'ldap'
     logger.debug( "Add new entry for #{login} using ldap" )
     if @@ldap_search_con.nil?
-      @@ldap_search_con = initialize_ldap_con(CONFIG['ldap_search_user'], CONFIG['ldap_search_auth'])
+      @@ldap_search_con = initialize_ldap_con
     end
     ldap_con = @@ldap_search_con
     if ldap_con.nil?
@@ -339,7 +339,7 @@ class User < ActiveRecord::Base
   def self.delete_entry_ldap(login)
     logger.debug( "Deleting #{login} using ldap" )
     if @@ldap_search_con.nil?
-      @@ldap_search_con = initialize_ldap_con(CONFIG['ldap_search_user'], CONFIG['ldap_search_auth'])
+      @@ldap_search_con = initialize_ldap_con
     end
     ldap_con = @@ldap_search_con
     if ldap_con.nil?
@@ -389,7 +389,7 @@ class User < ActiveRecord::Base
   # This static method performs the search with the given search_base, filter
   def self.search_ldap(search_base, filter, required_attr = nil)
     if @@ldap_search_con.nil?
-      @@ldap_search_con = initialize_ldap_con(CONFIG['ldap_search_user'], CONFIG['ldap_search_auth'])
+      @@ldap_search_con = initialize_ldap_con
     end
     ldap_con = @@ldap_search_con
     if ldap_con.nil?
@@ -416,11 +416,11 @@ class User < ActiveRecord::Base
   def self.render_grouplist_ldap(grouplist, user = nil)
     result = Array.new
     if @@ldap_search_con.nil?
-      @@ldap_search_con = initialize_ldap_con(CONFIG['ldap_search_user'], CONFIG['ldap_search_auth'])
+      @@ldap_search_con = initialize_ldap_con
     end
     ldap_con = @@ldap_search_con
     if ldap_con.nil?
-      logger.debug( "Unable to connect to LDAP server" )
+      logger.debug("Unable to connect to LDAP server")
       return result
     end
 
@@ -509,7 +509,7 @@ class User < ActiveRecord::Base
   # active directory server.  Return the error msg if any error occurred
   def self.change_password_ldap(login, password)
     if @@ldap_search_con.nil?
-      @@ldap_search_con = initialize_ldap_con(CONFIG['ldap_search_user'], CONFIG['ldap_search_auth'])
+      @@ldap_search_con = initialize_ldap_con
     end
     ldap_con = @@ldap_search_con
     if ldap_con.nil?
@@ -577,7 +577,7 @@ class User < ActiveRecord::Base
     user_filter = String.new
     1.times do
       if @@ldap_search_con.nil?
-        @@ldap_search_con = initialize_ldap_con(CONFIG['ldap_search_user'], CONFIG['ldap_search_auth'])
+        @@ldap_search_con = initialize_ldap_con
       end
       ldap_con = @@ldap_search_con
       if ldap_con.nil?
@@ -641,7 +641,7 @@ class User < ActiveRecord::Base
       end
     when :ldap then
       # Don't match the passwd locally, try to bind to the ldap server
-      user_con= initialize_ldap_con(dn,password)
+      user_con= initialize_ldap_con(dn, password)
       if user_con.nil?
         logger.debug( "Unable to connect to LDAP server as #{dn} using credentials supplied" )
       else
@@ -1311,14 +1311,14 @@ class User < ActiveRecord::Base
 
   # this method returns a ldap object using the provided user name
   # and password
-  def self.initialize_ldap_con(user_name, password)
-    return nil unless defined?( CONFIG['ldap_servers'] )
-    ldap_servers = CONFIG['ldap_servers'].split(":")
+  def self.initialize_ldap_con(user_name = Suse::Ldap.search_user, password = Suse::Ldap.search_auth)
+    return nil unless defined?(Suse::Ldap.servers)
+    ldap_servers = Suse::Ldap.servers.split(":")
     ping = false
     server = nil
     count = 0
 
-    max_ldap_attempts = defined?( CONFIG['ldap_max_attempts'] ) ? CONFIG['ldap_max_attempts'] : 10
+    max_ldap_attempts = Suse::Ldap.maximum_attempts
 
     while !ping and count < max_ldap_attempts
       count += 1
@@ -1328,37 +1328,37 @@ class User < ActiveRecord::Base
     end
 
     if count == max_ldap_attempts
-      logger.debug("Unable to ping to any LDAP server: #{CONFIG['ldap_servers']}")
+      logger.debug("Unable to ping to any LDAP server: #{ Suse::Ldap.servers }")
       return nil
     end
 
-    logger.debug( "Connecting to #{server} as '#{user_name}'" )
     begin
-      if defined?( CONFIG['ldap_ssl'] ) && CONFIG['ldap_ssl'] == :on
-        port = defined?( CONFIG['ldap_port'] ) ? CONFIG['ldap_port'] : 636
-        conn = LDAP::SSLConn.new( server, port)
+      port = Suse::Ldap.port
+      Rails.logger.debug "Connecting to #{ server } as '#{ user_name }' on port #{ port }"
+
+      if Suse::Ldap.ssl?
+        conn = LDAP::SSLConn.new(server, port)
       else
-        port = defined?( CONFIG['ldap_port'] ) ? CONFIG['ldap_port'] : 389
-        # Use LDAP StartTLS. By default start_tls is off.
-        if defined?( CONFIG['ldap_start_tls'] ) && CONFIG['ldap_start_tls'] == :on
-          conn = LDAP::SSLConn.new( server, port, true)
+        if Suse::Ldap.start_tls?
+          conn = LDAP::SSLConn.new(server, port, true)
         else
-          conn = LDAP::Conn.new( server, port)
+          conn = LDAP::Conn.new(server, port)
         end
       end
       conn.set_option(LDAP::LDAP_OPT_PROTOCOL_VERSION, 3)
-      if defined?( CONFIG['ldap_referrals'] ) && CONFIG['ldap_referrals'] == :off
+      unless Suse::Ldap.referrals?
         conn.set_option(LDAP::LDAP_OPT_REFERRALS, LDAP::LDAP_OPT_OFF)
       end
       conn.bind(user_name, password)
+
     rescue LDAP::ResultError
       if not conn.nil?
         conn.unbind()
       end
-      logger.debug( "Not bound:  error #{conn.err} for #{user_name}" )
+      Rails.logger.debug "Not bound:  error #{ conn.err } for #{ user_name }"
       return nil
     end
-    logger.debug( "Bound as #{user_name}" )
+    Rails.logger.debug "Bound as #{ user_name }"
     return conn
   end
 
