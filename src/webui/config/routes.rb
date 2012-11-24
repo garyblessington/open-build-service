@@ -43,7 +43,7 @@ OBSWebUI::Application.routes.draw do
     match 'driver_update/binaries' => :binaries
   end
 
-  resources :groups, :controller => 'group', :only => [:index, :show] do
+  resources :groups, :controller => 'group', :only => [:index, :show, :edit, :update] do
     collection do
       get 'autocomplete'
     end

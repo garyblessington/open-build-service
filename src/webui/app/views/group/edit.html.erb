@@ -1,0 +1,26 @@
+<% @pagetitle = "Editing group #{ @group.value('title') }" %>
+
+<h2><%= @pagetitle %></h2>
+
+<%= form_tag("/groups/#{ @group.value('title') }", :method => :put) do -%>
+  <table>
+    <tbody>
+        <tr>
+          <td>Title</td>
+          <td><%= text_field_tag "title", @group.value('title') %></td>
+        </tr>
+        <tr>
+          <td>LDAP Group Permission Required?</td>
+          <td>
+            On <%= radio_button_tag "ldap_group_member_of_validation", true, @group.value('ldap_group_member_of_validation').to_bool %>
+            Off <%= radio_button_tag "ldap_group_member_of_validation", false, !@group.value('ldap_group_member_of_validation').to_bool %>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+  <p>
+    <%= submit_tag('Update') %>
+    <%= link_to('Cancel', groups_path) %>
+  </p>
+<% end %>
