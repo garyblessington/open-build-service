@@ -45,6 +45,22 @@ OBSWebUI::Application.routes.draw do
     match 'driver_update/binaries' => :binaries
   end
 
+  resources :groups, :controller => 'group', :only => [:index, :show, :edit, :update] do
+    collection do
+      get 'autocomplete'
+    end
+  end
+
+  controller :home do
+    match 'home/' => :index
+    match 'home/:user/icon' => :icon, constraints: cons
+    match 'home/my_work' => :my_work
+    match 'home/requests' => :requests
+    match 'home/home_project' => :home_project
+    match 'home/list_my' => :list_my
+    match 'home/remove_watched_project' => :remove_watched_project
+  end
+
   controller :monitor do
     match 'monitor/' => :index
     match 'monitor/old' => :old
@@ -223,7 +239,7 @@ OBSWebUI::Application.routes.draw do
   end
 
   controller :user do
-  
+
     match 'user/register' => :register, via: :post
     match 'user/register_user' => :register_user
 
@@ -243,7 +259,7 @@ OBSWebUI::Application.routes.draw do
 
     match 'user/autocomplete' => :autocomplete
     match 'user/tokens' => :tokens
-  
+
     match 'user/do_login' => :do_login
     match 'configuration/users/:user' => :edit
 
@@ -257,10 +273,10 @@ OBSWebUI::Application.routes.draw do
     match 'group/tokens' => :tokens
     match 'group/edit' => :edit
   end
-      
+
   controller :home do
     # Only here to make old url's work
-    match 'home/' => :index 
+    match 'home/' => :index
     match 'home/my_work' => :index
     match 'home/list_my' => :index
     match 'home/requests' => :requests

@@ -7,6 +7,9 @@
   <input id="name" name="name" type="hidden" value="<%= @displayed_group.title %>" />
   <%= label_tag :members, 'Members:' %><br/>
   <input type="text" id="members" name="members" style="display: none;" />
+  <%= label_tag :ldap_group_member_validation, 'LDAP Group Member Validation?:' %><br/>
+  On <%= radio_button_tag "ldap_group_member_of_validation", true, @displayed_group.value('ldap_group_member_of_validation').to_bool %><br />
+  Off <%= radio_button_tag "ldap_group_member_of_validation", false, !@displayed_group.value('ldap_group_member_of_validation').to_bool %><br />
   <%= submit_tag 'Save' %>
   </p>
 <% end %>
