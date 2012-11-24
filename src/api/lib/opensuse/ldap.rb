@@ -37,78 +37,34 @@ module Suse
     # group_title_attribute - The attribute the group name is stored in
 
     def self.enabled?
-      # This should replace all current application references to -- if defined?( CONFIG['ldap_mode'] ) && CONFIG['ldap_mode'] == :on
-      ldap_mode = ApplicationSettings::LdapMode.first
-      ldap_mode.nil? ? false : ldap_mode.value
+      # TODO This should replace all current application references to -- if defined?( CONFIG['ldap_mode'] ) && CONFIG['ldap_mode'] == :on
+      # LDAP mode enabled? All other LDAP options rely upon this.
+      ApplicationSettings::LdapMode.get.value
     end
 
-    def self.authenticate!(login, passwd)
-      begin
-        #logger.debug( "Using LDAP to find #{login}" )
-        ldap_info = User.find_with_ldap(login, passwd)
-      rescue LoadError
-        #logger.warn "ldap_mode selected but 'ruby-ldap' module not installed."
-        ldap_info = nil # now fall through as if we'd not found a user
-      rescue Exception
-        #logger.debug "#{login} not found in LDAP."
-        ldap_info = nil # now fall through as if we'd not found a user
-      end
+    def self.group_member_of_validation?
+      # If enabled, a user can only access groups that they are a memberOf on the LDAP server
+      ApplicationSettings::LdapGroupMemberOfValidation.get.value
+    end
 
-      if not ldap_info.nil?
-        # We've found an ldap authenticated user - find or create an OBS userDB entry.
-        @http_user = User.find_by_login( login )
-        if @http_user
-          # Check for ldap updates
-          if @http_user.email != ldap_info[0]
-            @http_user.email = ldap_info[0]
-            @http_user.save
-          end
-        else
-          if CONFIG['new_user_registration'] == "deny"
-            #logger.debug("No user found in database, creation disabled")
-            render_error(:message => "User '#{login}' does not exist<br>#{errstr}", :status => 401)
-            @http_user=nil
-            return false
-          end
-          #logger.debug("No user found in database, creating")
-          #logger.debug("Email: #{ldap_info[0]}")
-          #logger.debug("Name : #{ldap_info[1]}")
+    def self.search_user
+      # Credentials to use to search LDAP for the username
+      ApplicationSettings::LdapSearchUser.get.value
+    end
 
-          # Generate and store a fake pw in the OBS DB that no-one knows
-          fakepw = PasswordGenerator.generate_random_password
-          newuser = User.create(
-            :login => login,
-            :password => fakepw,
-            :password_confirmation => fakepw,
-            :email => ldap_info[0] )
-          unless newuser.errors.empty?
-            errstr = String.new
-            #logger.debug("Creating User failed with: ")
-            newuser.errors.each_full do |msg|
-              errstr = errstr+msg
-              #logger.debug(msg)
-            end
-            render_error( :message => "Cannot create ldap userid: '#{login}' on OBS<br>#{errstr}",
-              :status => 401 )
-            @http_user=nil
-            return false
-          end
-          newuser.realname = ldap_info[1]
-          newuser.state = User.states['confirmed']
-          newuser.state = User.states['unconfirmed'] if CONFIG['new_user_registration'] == "confirmation"
-          newuser.adminnote = "User created via LDAP"
-          user_role = Role.find_by_title("User")
-          newuser.roles << user_role
+    def self.search_auth
+      # Credentials to use to search LDAP for the username
+      ApplicationSettings::LdapSearchAuth.get.value
+    end
 
-          #logger.debug("saving new user...")
-          newuser.save
+    def self.search_base
+      # LDAP search base for the users who will use OBS
+      ApplicationSettings::LdapSearchBase.get.value
+    end
 
-          @http_user = newuser
-        end
-      else
-        #logger.debug("User not found with LDAP, falling back to database")
-        @http_user = User.find_with_credentials login, passwd
-      end
+    def self.member_of_attribute
+      # The attribute the user memberOf is stored in
+      ApplicationSettings::LdapMemberOfAttribute.get.value
     end
 
     # Populates db-based config model with LDAP details from config file
