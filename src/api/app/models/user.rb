@@ -1319,6 +1319,8 @@ class User < ActiveRecord::Base
 
   # this method returns a ldap object using the provided user name
   # and password
+  # TODO This should be moved out of User, as there is not a good reason for it to belong here.
+  # Ideally, it should be moved to Suse::Ldap
   def self.initialize_ldap_con(user_name = Suse::Ldap.search_user, password = Suse::Ldap.search_auth)
     return nil unless defined?(Suse::Ldap.servers)
     ldap_servers = Suse::Ldap.servers.split(":")
