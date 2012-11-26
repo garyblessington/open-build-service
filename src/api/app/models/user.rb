@@ -412,9 +412,27 @@ class User < ActiveRecord::Base
     end
   end
 
-  # This static method performs the search with the given grouplist, user to return the groups that the user in
+  def accessible_groups(refresh_groups = false)
+    # Returns a list of the groups that a user can access
+    cache_key = "user_#{ self.id }_groups"
+    if refresh_groups == false && group_ids = Rails.cache.fetch(cache_key)
+      groups = Group.where('id IN (?)', group_ids)
+    else
+      groups = Group.all
+      if Suse::Ldap.group_member_of_validation?
+        ldap_groups = User.render_grouplist_ldap(groups.map(&:title), self.login)
+        logger.debug "User #{ self.login } has access to the following groups: #{ ldap_groups.inspect }"
+        groups.reject! { |group| !ldap_groups.include?(group.title) }
+      end
+      Rails.cache.write(cache_key, groups.map(&:id), :expires_in => 8.hours)
+    end
+    groups
+  end
+
+  # This static method performs a search with the given grouplist and user returning the LDAP groups that the user is in
   def self.render_grouplist_ldap(grouplist, user = nil)
     result = Array.new
+
     if @@ldap_search_con.nil?
       @@ldap_search_con = initialize_ldap_con
     end
@@ -424,27 +442,31 @@ class User < ActiveRecord::Base
       return result
     end
 
-    if not user.nil?
+    if user.present?
       # search user
-      if defined?( CONFIG['ldap_user_filter'] )
-        filter = "(&(#{LCONFIG['dap_search_attr']}=#{user})#{CONFIG['ldap_user_filter']})"
+      if Suse::Ldap.filter_users_by_group_name.present?
+        filter = "(&(#{ Suse::Ldap.search_attribute }=#{ user })#{ Suse::Ldap.filter_users_by_group_name })"
       else
-        filter = "(#{LCONFIG['dap_search_attr']}=#{user})"
+        filter = "(#{ Suse::Ldap.search_attribute }=#{ user })"
       end
+      logger.debug("Filter: #{ filter }")
+
       user_dn = String.new
       user_memberof_attr = String.new
-      ldap_con.search( CONFIG['ldap_search_base'], LDAP::LDAP_SCOPE_SUBTREE, filter ) do |entry|
+      ldap_con.search(Suse::Ldap.search_base, LDAP::LDAP_SCOPE_SUBTREE, filter) do |entry|
         user_dn = entry.dn
-        if defined?( CONFIG['ldap_user_memberof_attr'] ) && entry.attrs.include?( CONFIG['ldap_user_memberof_attr'] )
-          user_memberof_attr=entry.vals(CONFIG['ldap_user_memberof_attr'])
+        if Suse::Ldap.user_member_of_attribute.present? && entry.attrs.include?(Suse::Ldap.user_member_of_attribute)
+          user_memberof_attr = entry.vals(Suse::Ldap.user_member_of_attribute)
         end
       end
+
       if user_dn.empty?
-        logger.debug( "Failed to find #{user} in ldap" )
+        logger.debug("Failed to find #{ user } in LDAP")
         return result
       end
-      logger.debug( "User dn: #{user_dn} user_memberof_attr: #{user_memberof_attr}" )
+      logger.debug("User dn: #{ user_dn } user_memberof_attr: #{ user_memberof_attr }")
     end
+
 
     group_dn = String.new
     group_member_attr = String.new
@@ -457,28 +479,29 @@ class User < ActiveRecord::Base
       end
 
       unless group.kind_of? String
-        raise ArgumentError, "illegal parameter type to user#render_grouplist_ldap?: #{eachgroup.class.name}"
+        raise ArgumentError, "illegal parameter type to user#render_grouplist_ldap?: #{ eachgroup.class.name }"
       end
 
       # search group
-      if defined?( CONFIG['ldap_group_objectclass_attr'] )
-        filter = "(&(#{CONFIG['ldap_group_title_attr']}=#{group})(objectclass=#{CONFIG['ldap_group_objectclass_attr']}))"
+      if Suse::Ldap.group_object_class_attribute.present?
+        filter = "(&(#{ Suse::Ldap.group_title_attribute }=#{ group })(objectclass=#{ Suse::Ldap.group_object_class_attribute }))"
       else
-        filter = "(#{CONFIG['ldap_group_title_attr']}=#{group})"
+        filter = "(#{ Suse::Ldap.group_title_attribute }=#{ group })"
       end
 
       # clean group_dn, group_member_attr
       group_dn = ""
       group_member_attr = ""
-      logger.debug( "Search group: #{filter}" )
-      ldap_con.search( CONFIG['ldap_group_search_base'], LDAP::LDAP_SCOPE_SUBTREE, filter ) do |entry|
+      logger.debug("Search group: #{ filter }")
+      ldap_con.search(Suse::Ldap.group_search_base, LDAP::LDAP_SCOPE_SUBTREE, filter) do |entry|
         group_dn = entry.dn
-        if defined?( CONFIG['ldap_group_member_attr'] ) && entry.attrs.include?(CONFIG['ldap_group_member_attr'])
-          group_member_attr = entry.vals(CONFIG['ldap_group_member_attr'])
+        if Suse::Ldap.group_member_attribute.present? && entry.attrs.include?(Suse::Ldap.group_member_attribute)
+          group_member_attr = entry.vals(Suse::Ldap.group_member_attribute)
         end
       end
+
       if group_dn.empty?
-        logger.debug( "Failed to find #{group} in ldap" )
+        logger.debug("Failed to find #{ group } in ldap")
         next
       end
 
@@ -490,16 +513,18 @@ class User < ActiveRecord::Base
       # user memberof attr exist?
       if user_memberof_attr and user_memberof_attr.include?(group_dn)
         result << eachgroup
-        logger.debug( "#{user} is in #{group}" )
+        logger.debug("#{ user } is in #{ group }")
         next
       end
+
       # group member attr exist?
       if group_member_attr and group_member_attr.include?(user_dn)
         result << eachgroup
-        logger.debug( "#{user} is in #{group}" )
+        logger.debug("#{ user } is in #{ group }")
         next
       end
-      logger.debug("#{user} is not in #{group}")
+
+      logger.debug("#{ user } is not in #{ group }")
     end
 
     return result

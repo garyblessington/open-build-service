@@ -16,12 +16,13 @@ class ApplicationSettingsController < ApplicationController
   end
 
   def create
-    # TODO Post params to API and get response
+    # Post params to API and get response
     @application_settings = {}
     data = "<hash>"
     session[:application_settings].each do |key, value|
       @application_settings[key] = params[key]
-      data << "<#{ key }>#{ CGI.escapeHTML(@application_settings[key]) }</#{ key }>"
+      Rails.logger.debug "#{ key } => #{ params[key] }"
+      data << "<#{ key }>#{ CGI.escapeHTML(@application_settings[key]) if @application_settings[key].present? }</#{ key }>"
     end
     data << "</hash>"
 
