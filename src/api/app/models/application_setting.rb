@@ -27,6 +27,7 @@ class ApplicationSetting < ActiveRecord::Base
       :LdapAuthenticationMechanism => ApplicationSettings::LdapAuthenticationMechanism.get.value,
       :LdapFilterUsersByGroupName => ApplicationSettings::LdapFilterUsersByGroupName.get.value,
       :LdapGroupMemberOfValidation => ApplicationSettings::LdapGroupMemberOfValidation.get.value,
+      :LdapGroupMemberAttribute => ApplicationSettings::LdapGroupMemberAttribute.get.value,
       :LdapGroupObjectClassAttribute => ApplicationSettings::LdapGroupObjectClassAttribute.get.value,
       :LdapGroupSearchBase => ApplicationSettings::LdapGroupSearchBase.get.value,
       :LdapGroupTitleAttribute => ApplicationSettings::LdapGroupTitleAttribute.get.value,
@@ -40,7 +41,8 @@ class ApplicationSetting < ActiveRecord::Base
       :LdapSearchUser => ApplicationSettings::LdapSearchUser.get.value,
       :LdapSnAttributeRequired => ApplicationSettings::LdapSnAttributeRequired.get.value,
       :LdapUpdateSupport => ApplicationSettings::LdapUpdateSupport.get.value,
-      :LdapUserNameAttribute => ApplicationSettings::LdapUserNameAttribute.get.value
+      :LdapUserNameAttribute => ApplicationSettings::LdapUserNameAttribute.get.value,
+      :LdapUserMemberOfAttribute => ApplicationSettings::LdapUserMemberOfAttribute.get.value
       }
     application_settings.to_xml
   end

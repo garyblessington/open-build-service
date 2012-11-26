@@ -19,6 +19,10 @@
               </td>
             </tr>
             <tr>
+              <td>LDAP Authentication</td>
+              <td><%= text_field_tag "LdapAuthentication", @application_settings[:LdapAuthentication], :size => 50 %></td>
+            </tr>
+            <tr>
               <td>Port Number</td>
               <td><%= text_field_tag "LdapPort", @application_settings[:LdapPort] %></td>
             </tr>
@@ -57,6 +61,10 @@
                 On <%= radio_button_tag "LdapGroupMemberOfValidation", true, @application_settings[:LdapGroupMemberOfValidation].to_bool %>
                 Off <%= radio_button_tag "LdapGroupMemberOfValidation", false, !@application_settings[:LdapGroupMemberOfValidation].to_bool %>
               </td>
+            </tr>
+            <tr>
+              <td>Group Member Attribute</td>
+              <td><%= text_field_tag "LdapGroupMemberAttribute", @application_settings[:LdapGroupMemberAttribute], :size => 50 %></td>
             </tr>
             <tr>
               <td>Group Search Base</td>
@@ -104,6 +112,10 @@
             <tr>
               <td>Search User</td>
               <td><%= text_field_tag "LdapSearchUser", @application_settings[:LdapSearchUser], :size => 50 %></td>
+            </tr>
+            <tr>
+              <td>User memberOf Attribute</td>
+              <td><%= text_field_tag "LdapUserMemberOfAttribute", @application_settings[:LdapUserMemberOfAttribute], :size => 50 %></td>
             </tr>
             <tr>
               <td>SN Attribute Required?</td>
