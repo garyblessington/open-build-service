@@ -26,9 +26,12 @@ OBSApi::Application.routes.draw do
     match 'person/:login' => 'person#userinfo', :constraints => cons
 
     ### /group
-    match 'group' => 'group#index'
+    resources :group, :only => [:index] do
+      collection do
+        put 'refresh_cached_groups'
+      end
+    end
     match 'group/:title' => 'group#group', :constraints => cons
-    resources :group
 
     ### /service
     match 'service' => 'service#index'
