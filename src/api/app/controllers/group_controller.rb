@@ -10,10 +10,11 @@ class GroupController < ApplicationController
 
     if params[:login]
       user = User.find_by_login!(params[:login])
-      list = user.groups
+      list = user.accessible_groups
     else
       list = Group.all
     end
+
     if params[:prefix]
       list = list.find_all {|group| group.title.match(/^#{params[:prefix]}/)}
     end
@@ -22,7 +23,16 @@ class GroupController < ApplicationController
     xml = builder.directory(:count => list.length) do |dir|
       list.each {|group| dir.entry(:name => group.title)}
     end
+
     render :text => xml, :content_type => "text/xml"
+  end
+
+  def refresh_cached_groups
+    if params[:login]
+      user = User.find_by_login!(params[:login])
+      list = user.accessible_groups(:refresh_cache => true)
+    end
+    render_ok
   end
 
   # generic function to handle all group related tasks
