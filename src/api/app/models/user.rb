@@ -412,10 +412,11 @@ class User < ActiveRecord::Base
     end
   end
 
-  def accessible_groups(refresh_groups = false)
+  def accessible_groups(opts = {})
     # Returns a list of the groups that a user can access
+    opts[:refresh_cache] ||= false
     cache_key = "user_#{ self.id }_groups"
-    if refresh_groups == false && group_ids = Rails.cache.fetch(cache_key)
+    if opts[:refresh_cache] == false && group_ids = Rails.cache.fetch(cache_key)
       groups = Group.where('id IN (?)', group_ids)
     else
       groups = Group.all
@@ -453,7 +454,7 @@ class User < ActiveRecord::Base
 
       user_dn = String.new
       user_memberof_attr = String.new
-      ldap_con.search(Suse::Ldap.search_base, LDAP::LDAP_SCOPE_SUBTREE, filter) do |entry|
+      ldap_con.search(Suse::Ldap.user_search_base, LDAP::LDAP_SCOPE_SUBTREE, filter) do |entry|
         user_dn = entry.dn
         if Suse::Ldap.user_member_of_attribute.present? && entry.attrs.include?(Suse::Ldap.user_member_of_attribute)
           user_memberof_attr = entry.vals(Suse::Ldap.user_member_of_attribute)

@@ -9,26 +9,86 @@
       <table>
         <tbody>
             <tr>
-              <td>LDAP Mode?</td>
-              <td>
-                <%#= hidden_field_tag 'LdapMode', nil %>
-                <%#= check_box_tag "LdapMode", true, @application_settings[:LdapMode].to_bool %>
-                <%#= check_box_tag "LdapMode", true, @application_settings[:LdapMode].to_bool %>
-                On <%= radio_button_tag "LdapMode", true, @application_settings[:LdapMode].to_bool %>
-                Off <%= radio_button_tag "LdapMode", false, !@application_settings[:LdapMode].to_bool %>
-              </td>
-            </tr>
-            <tr>
-              <td>LDAP Authentication</td>
-              <td><%= text_field_tag "LdapAuthentication", @application_settings[:LdapAuthentication], :size => 50 %></td>
+              <td>LDAP Servers</td>
+              <td><%= text_field_tag "LdapServers", @application_settings[:LdapServers], :size => 50 %></td>
             </tr>
             <tr>
               <td>Port Number</td>
               <td><%= text_field_tag "LdapPort", @application_settings[:LdapPort] %></td>
             </tr>
             <tr>
+              <td>Maximum Connection Attempts</td>
+              <td><%= text_field_tag "LdapMaximumAttempts", @application_settings[:LdapMaximumAttempts], :size => 50 %></td>
+            </tr>
+            <tr>
+              <td>Use SSL?</td>
+              <td>
+                On <%= radio_button_tag "LdapSsl", true, @application_settings[:LdapSsl].to_bool %>
+                Off <%= radio_button_tag "LdapSsl", false, !@application_settings[:LdapSsl].to_bool %>
+              </td>
+            </tr>
+            <tr>
+              <td>Use StartTLS?</td>
+              <td>
+                On <%= radio_button_tag "LdapStartTls", true, @application_settings[:LdapStartTls].to_bool %>
+                Off <%= radio_button_tag "LdapStartTls", false, !@application_settings[:LdapStartTls].to_bool %>
+              </td>
+            </tr>
+            <tr>
+              <td>Referrals?</td>
+              <td>
+                On <%= radio_button_tag "LdapReferrals", true, @application_settings[:LdapReferrals].to_bool %>
+                Off <%= radio_button_tag "LdapReferrals", false, !@application_settings[:LdapReferrals].to_bool %>
+              </td>
+            </tr>
+            <tr>
+              <td>LDAP Mode?</td>
+              <td>
+                On <%= radio_button_tag "LdapMode", true, @application_settings[:LdapMode].to_bool %>
+                Off <%= radio_button_tag "LdapMode", false, !@application_settings[:LdapMode].to_bool %>
+              </td>
+            </tr>
+            <tr>
               <td>Entry Base DN</td>
               <td><%= text_field_tag "LdapEntryBaseDn", @application_settings[:LdapEntryBaseDn], :size => 50 %></td>
+            </tr>
+            <tr>
+              <td>User Search Base</td>
+              <td><%= text_field_tag "LdapUserSearchBase", @application_settings[:LdapUserSearchBase], :size => 50 %></td>
+            </tr>
+            <tr>
+              <td>Search User</td>
+              <td><%= text_field_tag "LdapSearchUser", @application_settings[:LdapSearchUser], :size => 50 %></td>
+            </tr>
+            <tr>
+              <td>Search Authentication</td>
+              <td><%= text_field_tag "LdapSearchAuth", @application_settings[:LdapSearchAuth], :size => 50 %></td>
+            </tr>
+            <tr>
+              <td>Search Attribute</td>
+              <td><%= text_field_tag "LdapSearchAttribute", @application_settings[:LdapSearchAttribute], :size => 50 %></td>
+            </tr>
+            <tr>
+              <td>User memberOf Attribute</td>
+              <td><%= text_field_tag "LdapUserMemberOfAttribute", @application_settings[:LdapUserMemberOfAttribute], :size => 50 %></td>
+            </tr>
+            <tr>
+              <td>Group Object Class Attribute</td>
+              <td><%= text_field_tag "LdapGroupObjectClassAttribute", @application_settings[:LdapGroupObjectClassAttribute], :size => 50 %></td>
+            </tr>
+            <tr>
+              <td>Group Title Attribute</td>
+              <td><%= text_field_tag "LdapGroupTitleAttribute", @application_settings[:LdapGroupTitleAttribute], :size => 50 %></td>
+            </tr>
+            <tr>
+              <td>Group Search Base</td>
+              <td><%= text_field_tag "LdapGroupSearchBase", @application_settings[:LdapGroupSearchBase], :size => 50 %></td>
+            </tr>
+
+
+            <tr>
+              <td>LDAP Authentication</td>
+              <td><%= text_field_tag "LdapAuthentication", @application_settings[:LdapAuthentication], :size => 50 %></td>
             </tr>
             <tr>
               <td>Authentication</td>
@@ -49,8 +109,6 @@
             <tr>
               <td>Group Support?</td>
               <td>
-                <%#= hidden_field_tag 'LdapGroupSupport', nil %>
-                <%#= check_box_tag "LdapGroupSuport", true, @application_settings[:LdapGroupSupport].to_bool %>
                 On <%= radio_button_tag "LdapGroupSupport", true, @application_settings[:LdapGroupSupport].to_bool %>
                 Off <%= radio_button_tag "LdapGroupSupport", false, !@application_settings[:LdapGroupSupport].to_bool %>
               </td>
@@ -67,55 +125,12 @@
               <td><%= text_field_tag "LdapGroupMemberAttribute", @application_settings[:LdapGroupMemberAttribute], :size => 50 %></td>
             </tr>
             <tr>
-              <td>Group Search Base</td>
-              <td><%= text_field_tag "LdapGroupSearchBase", @application_settings[:LdapGroupSearchBase], :size => 50 %></td>
-            </tr>
-            <tr>
-              <td>Group Object Class Attribute</td>
-              <td><%= text_field_tag "LdapGroupObjectClassAttribute", @application_settings[:LdapGroupObjectClassAttribute], :size => 50 %></td>
-            </tr>
-            <tr>
-              <td>Group Title Attribute</td>
-              <td><%= text_field_tag "LdapGroupTitleAttribute", @application_settings[:LdapGroupTitleAttribute], :size => 50 %></td>
-            </tr>
-            <tr>
               <td>Mail Attribute</td>
               <td><%= text_field_tag "LdapMailAttribute", @application_settings[:LdapMailAttribute], :size => 50 %></td>
             </tr>
             <tr>
-              <td>Maximum Connection Attempts</td>
-              <td><%= text_field_tag "LdapMaximumAttempts", @application_settings[:LdapMaximumAttempts], :size => 50 %></td>
-            </tr>
-            <tr>
               <td>Object Class</td>
               <td><%= text_field_tag "LdapObjectClass", @application_settings[:LdapObjectClass], :size => 50 %></td>
-            </tr>
-            <tr>
-              <td>Referrals?</td>
-              <td>
-                On <%= radio_button_tag "LdapReferrals", true, @application_settings[:LdapReferrals].to_bool %>
-                Off <%= radio_button_tag "LdapReferrals", false, !@application_settings[:LdapReferrals].to_bool %>
-              </td>
-            </tr>
-            <tr>
-              <td>Search Attribute</td>
-              <td><%= text_field_tag "LdapSearchAttribute", @application_settings[:LdapSearchAttribute], :size => 50 %></td>
-            </tr>
-            <tr>
-              <td>Search Authentication</td>
-              <td><%= text_field_tag "LdapSearchAuth", @application_settings[:LdapSearchAuth], :size => 50 %></td>
-            </tr>
-            <tr>
-              <td>Search Base</td>
-              <td><%= text_field_tag "LdapSearchBase", @application_settings[:LdapSearchBase], :size => 50 %></td>
-            </tr>
-            <tr>
-              <td>Search User</td>
-              <td><%= text_field_tag "LdapSearchUser", @application_settings[:LdapSearchUser], :size => 50 %></td>
-            </tr>
-            <tr>
-              <td>User memberOf Attribute</td>
-              <td><%= text_field_tag "LdapUserMemberOfAttribute", @application_settings[:LdapUserMemberOfAttribute], :size => 50 %></td>
             </tr>
             <tr>
               <td>SN Attribute Required?</td>
@@ -132,7 +147,7 @@
               </td>
             </tr>
             <tr>
-              <td>Username Attribute</td>
+              <td>User Name Attribute</td>
               <td><%= text_field_tag "LdapUserNameAttribute", @application_settings[:LdapUserNameAttribute], :size => 50 %></td>
             </tr>
         </tbody>
