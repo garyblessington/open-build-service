@@ -8,7 +8,7 @@ class GroupController < ApplicationController
   def index
     valid_http_methods :get
 
-    if params[:login]
+    unless params[:login].blank?
       user = User.find_by_login!(params[:login])
       list = user.accessible_groups
     else
