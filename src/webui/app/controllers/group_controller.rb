@@ -9,14 +9,17 @@ class GroupController < ApplicationController
 
   def index
     @groups = []
-    Group.find_cached(:all).each do |entry|
-      group = Group.find_cached(entry.value('name'))
-      @groups << group if group
+    group_names = Group.list(nil, :login => session[:login])
+    group_names.each do |group_name|
+      @groups << Group.find_cached(group_name)
     end
   end
 
   def show
     required_parameters :id
+
+    # TODO Ensure that a person has access to this group, and redirect them if they do not
+
     @group = Group.find_cached(params[:id])
     unless @group
       flash[:error] = "Group '#{params[:id]}' does not exist"

@@ -25,7 +25,7 @@
       $(function() {
         <%= yield :ready_function %>
         <% if CONFIG['theme'] == 'bento' %>
-          callPiwik();  
+          callPiwik();
         <% end %>
       });
     <% end %>
@@ -89,6 +89,7 @@
         <strong class="grey-medium spacer1">Locations</strong>
         <ul>
           <li><%= link_to "Projects", controller: "project", action: :list_public %></li>
+          <li><%= link_to "Groups", groups_path %></li>
           <li><%= link_to "Search", { controller: 'search', action: 'index'}, class: 'search-link' %></li>
           <% unless @spider_bot -%>
             <li><%= link_to "Status Monitor", controller: "monitor", action: :index %></li>
