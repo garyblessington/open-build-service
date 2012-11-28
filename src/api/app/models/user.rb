@@ -420,10 +420,11 @@ class User < ActiveRecord::Base
       groups = Group.where('id IN (?)', group_ids)
     else
       groups = Group.all
-      if Suse::Ldap.group_member_of_validation?
-        ldap_groups = User.render_grouplist_ldap(groups.map(&:title), self.login)
-        logger.debug "User #{ self.login } has access to the following groups: #{ ldap_groups.inspect }"
-        groups.reject! { |group| !ldap_groups.include?(group.title) }
+      unless self.is_admin?
+        if Suse::Ldap.group_member_of_validation?
+          ldap_groups = User.render_grouplist_ldap(groups.map(&:title), self.login)
+          groups.reject! { |group| group.ldap_group_member_of_validation? && !ldap_groups.include?(group.title) }
+        end
       end
       Rails.cache.write(cache_key, groups.map(&:id), :expires_in => 8.hours)
     end
