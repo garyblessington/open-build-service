@@ -8,7 +8,7 @@ class UserController < ApplicationController
   before_filter :check_user, :only => [:edit, :save, :change_password, :register, :delete, :confirm, :lock, :admin]
   before_filter :overwrite_user, :only => [:edit]
   before_filter :require_admin, :only => [:edit]
-  
+
   def logout
     logger.info "Logging out: #{session[:login]}"
     reset_session
@@ -25,7 +25,7 @@ class UserController < ApplicationController
   def login
     @return_to_path = params['return_to_path'] || "/"
   end
-  
+
   def do_login
     @return_to_path = params['return_to_path'] || "/"
     if !params[:username].blank? and params[:password]
@@ -46,6 +46,9 @@ class UserController < ApplicationController
         flash.now[:error] = "Authentication failed"
         render :template => "user/login", :locals => {:return_to_path => @return_to_path} and return
       end
+
+      p.refresh_cached_groups!
+
       flash[:success] = "You are logged in now"
       redirect_to params[:return_to_path] and return
     end
@@ -92,7 +95,7 @@ class UserController < ApplicationController
     params[:state] = 'confirmed'
     save
   end
-  
+
   def lock
     user = Person.find( params[:user] )
     params[:realname] = user.realname
@@ -157,13 +160,13 @@ class UserController < ApplicationController
   end
 
   def change_password
-    # check the valid of the params  
+    # check the valid of the params
     if not params[:password] == session[:password]
       errmsg = "The value of current password does not match your current password. Please enter the password and try again."
     end
     if not params[:new_password] == params[:repeat_password]
       errmsg = "The passwords do not match, please try again."
-    end    
+    end
     if params[:password] == params[:new_password]
       errmsg = "The new password is the same as your current password. Please enter a new password."
     end
@@ -187,7 +190,7 @@ class UserController < ApplicationController
       flash[:error] = e.summary
     end
     redirect_to :controller => :home, :action => :index
-  end 
+  end
 
   def autocomplete
     required_parameters :term
