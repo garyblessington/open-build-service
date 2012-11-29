@@ -130,9 +130,9 @@ class Project < ActiveRecord::Base
             # if user is in group -> return true
             ret = ret + 1 if User.current.is_in_group?(grouprel.bs_group_id)
             # LDAP
-# FIXME: please do not do special things here for ldap. please cover this in a generic group model
-            if defined?( CONFIG['ldap_mode'] ) && CONFIG['ldap_mode'] == :on
-              if defined?( CONFIG['ldap_group_support'] ) && CONFIG['ldap_group_support'] == :on
+            # FIXME: please do not do special things here for ldap. please cover this in a generic group model
+            if Suse::Ldap.enabled?
+              if Suse::Ldap.group_support?
                 if User.current.user_in_group_ldap?(group.bs_group_id)
                   ret = ret + 1
                 end
@@ -440,8 +440,8 @@ class Project < ActiveRecord::Base
       else
         if !group
           # check with LDAP
-          if defined?( CONFIG['ldap_mode'] ) && CONFIG['ldap_mode'] == :on
-            if defined?( CONFIG['ldap_group_support'] ) && CONFIG['ldap_group_support'] == :on
+          if Suse::Ldap.enabled?
+            if Suse::Ldap.group_support?
               if User.find_group_with_ldap(ge['groupid'])
                 logger.debug "Find and Create group '#{ge['groupid']}' from LDAP"
                 newgroup = Group.create( :title => ge['groupid'] )

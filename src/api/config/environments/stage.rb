@@ -18,13 +18,17 @@ config.action_controller.perform_caching             = true
 # Disable delivery errors if you bad email addresses should just be ignored
 # config.action_mailer.raise_delivery_errors = false
 
+############################################################################
+# NOTE: CONFIG variables are no longer used for LDAP.
+# These are now stored in the database, and can be managed through the webui
+############################################################################
 # LDAP Servers separated by ':'.
 # OVERRIDE with your company's ldap servers. Servers are picked randomly for
 # each connection to distribute load.
 CONFIG['ldap_servers'] = "ldap1.mycompany.com:ldap2.mycompany.com"
 # OVERRIDE with your company's ldap search base for the users who will use OBS
 CONFIG['ldap_search_base'] = "OU=Organizational Unit,DC=Domain Component"
-# Sam Account Name is the login name for LDAP 
+# Sam Account Name is the login name for LDAP
 CONFIG['ldap_search_attr'] = "sAMAccountName"
 # Max number of times to attempt to contact the LDAP servers
 CONFIG['max_ldap_attempts'] = 10

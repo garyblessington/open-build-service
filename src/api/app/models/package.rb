@@ -68,7 +68,7 @@ class Package < ActiveRecord::Base
 
     # returns an object of package or raises an exception
     # should be always used when a project is required
-    # in case you don't access sources or build logs in any way use 
+    # in case you don't access sources or build logs in any way use
     # use_source: false to skip check for sourceaccess permissions
     # function returns a nil object in case the package is on remote instance
     def get_by_project_and_name( project, package, opts = {} )
@@ -101,7 +101,7 @@ class Package < ActiveRecord::Base
       raise UnknownObjectError, "#{project}/#{package}" if pkg.nil?
       raise ReadAccessError, "#{project}/#{package}" unless check_access?(pkg)
 
-      pkg.check_source_access! if use_source 
+      pkg.check_source_access! if use_source
 
       return pkg
     end
@@ -231,7 +231,7 @@ class Package < ActiveRecord::Base
       raise ReadSourceAccessError, "#{self.project.name}/#{self.name}"
     end
   end
-  
+
   def is_locked?
     return true if flags.find_by_flag_and_status "lock", "enable"
     return self.project.is_locked?
@@ -338,14 +338,14 @@ class Package < ActiveRecord::Base
     else
       # onlyissues gets the issues from .changes files
       issue_change={}
-      # all 
+      # all
       begin
         # no expand=1, so only branches are tracked
         issues = Suse::Backend.post("/source/#{URI.escape(self.project.name)}/#{URI.escape(self.name)}?cmd=diff&orev=0&onlyissues=1&linkrev=base&view=xml", nil)
         xml = REXML::Document.new(issues.body.to_s)
         xml.root.elements.each('/sourcediff/issues/issue') { |i|
           issue = Issue.find_or_create_by_name_and_tracker( i.attributes['name'], i.attributes['tracker'] )
-          issue_change[issue] = 'kept' 
+          issue_change[issue] = 'kept'
         }
       rescue Suse::Backend::HTTPError
       end
@@ -436,10 +436,10 @@ class Package < ActiveRecord::Base
       self.develpackage = develpkg
     end
     #--- end devel project ---#
-    
+
     # just for cycle detection
     self.resolve_devel_package
-    
+
     #--- update users ---#
     usercache = Hash.new
     self.package_user_role_relationships.each do |purr|
@@ -471,7 +471,7 @@ class Package < ActiveRecord::Base
         usercache[person['userid']] = { person['role'] => :new }
       end
     end
-    
+
     #delete all roles that weren't found in uploaded xml
     usercache.each do |user, roles|
       roles.each do |role, object|
@@ -479,16 +479,16 @@ class Package < ActiveRecord::Base
         object.delete
       end
     end
-    
+
     #--- end update users ---#
-    
+
     #--- update group ---#
     groupcache = Hash.new
     self.package_group_role_relationships.each do |pgrr|
       h = groupcache[pgrr.group.title] ||= Hash.new
       h[pgrr.role.title] = pgrr
     end
-    
+
     xmlhash.elements('group') do |ge|
       group = Group.find_by_title(ge['groupid'])
       if groupcache.has_key? ge['groupid']
@@ -509,8 +509,8 @@ class Package < ActiveRecord::Base
       else
         unless group
           # check with LDAP
-          if defined?( CONFIG['ldap_mode'] ) && CONFIG['ldap_mode'] == :on
-            if defined?( CONFIG['ldap_group_support'] ) && CONFIG['ldap_group_support'] == :on
+          if OpenSuse::Ldap.enabled?
+            if OpenSuse::Ldap.group_support?
               if User.find_group_with_ldap(ge['groupid'])
                 logger.debug "Find and Create group '#{ge['groupid']}' from LDAP"
                 newgroup = Group.create( :title => ge['groupid'] )
@@ -545,11 +545,11 @@ class Package < ActiveRecord::Base
 
     #---begin enable / disable flags ---#
     update_all_flags(xmlhash)
-    
+
     #--- update url ---#
     self.url = xmlhash.value('url')
     #--- end update url ---#
-    
+
     save!
   end
 
@@ -813,7 +813,7 @@ class Package < ActiveRecord::Base
     builder.package( :name => name, :project => project.name ) do |package|
       package.title( title )
       package.description( description )
-      
+
       if develpackage
         package.devel( :project => develpackage.project.name, :package => develpackage.name )
       end
@@ -836,7 +836,7 @@ class Package < ActiveRecord::Base
               flag.to_xml(builder)
             end
           end unless flaglist.empty?
-        end 
+        end
       end
 
       package.url( url ) unless url.blank?
@@ -845,7 +845,7 @@ class Package < ActiveRecord::Base
     end
     logger.debug "----------------- end rendering package #{name} ------------------------"
 
-    return builder.doc.to_xml :indent => 2, :encoding => 'UTF-8', 
+    return builder.doc.to_xml :indent => 2, :encoding => 'UTF-8',
                                :save_with => Nokogiri::XML::Node::SaveOptions::NO_DECLARATION |
                                              Nokogiri::XML::Node::SaveOptions::FORMAT
   end

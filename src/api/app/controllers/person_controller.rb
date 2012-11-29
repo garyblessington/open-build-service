@@ -15,7 +15,7 @@ class PersonController < ApplicationController
     valid_http_methods :get, :post
 
     unless request.post? and params[:cmd] == "register"
-      
+
       if !extract_user
         logger.debug "No user logged in, permission to index denied"
         return
@@ -150,7 +150,7 @@ class PersonController < ApplicationController
   end
 
   def internal_register
-    if CONFIG['ldap_mode'] == :on
+    if OpenSuse::Ldap.enabled?
       render_error :message => "LDAP mode enabled, users can only be registered via LDAP", :errorcode => "err_register_save", :status => 400
       return
     end
@@ -160,7 +160,7 @@ class PersonController < ApplicationController
     end
 
     xml = REXML::Document.new( request.raw_post )
-    
+
     logger.debug( "register XML: #{request.raw_post}" )
 
     login = xml.elements["/unregisteredperson/login"].text
@@ -200,7 +200,7 @@ class PersonController < ApplicationController
       realname = request.env['HTTP_X_FIRSTNAME'] + " " + request.env['HTTP_X_LASTNAME'] unless request.env['HTTP_X_LASTNAME'].blank?
     end
 
-    newuser = User.create( 
+    newuser = User.create(
               :login => login,
               :password => password,
               :password_confirmation => password,
@@ -211,10 +211,10 @@ class PersonController < ApplicationController
     newuser.adminnote = note
     logger.debug("Saving...")
     newuser.save
-    
+
     if !newuser.errors.empty?
       details = newuser.errors.map{ |key, msg| "#{key}: #{msg}" }.join(", ")
-      
+
       render_error :message => "Could not save the registration",
                    :errorcode => "err_register_save",
                    :details => details, :status => 400
@@ -235,7 +235,7 @@ class PersonController < ApplicationController
     request.env["RAW_POST_DATA"] = request.env["RAW_POST_DATA"].sub(/<password>(.*)<\/password>/, "<password>STRIPPED<password>")
     raise e
   end
-  
+
   def update_watchlist( user, xml )
     new_watchlist = []
     old_watchlist = []
@@ -264,7 +264,7 @@ class PersonController < ApplicationController
   def change_my_password
     #FIXME3.0: remove this function
     valid_http_methods :post, :put
-    
+
     xml = REXML::Document.new( request.raw_post )
 
     logger.debug( "changepasswd XML: #{request.raw_post}" )
@@ -295,24 +295,24 @@ class PersonController < ApplicationController
             :message => "No sufficiend permissions to change password for others"
       return
     end
-    
-    #change password to LDAP if LDAP is enabled    
-    if CONFIG['ldap_mode'] == :on
+
+    #change password to LDAP if LDAP is enabled
+    if OpenSuse::Ldap.enabled?
       ldap_password = Base64.decode64(password)
-      if CONFIG['ldap_ssl'] == :on
+      if OpenSuse::Ldap.ssl?
         require 'base64'
         begin
           logger.debug( "Using LDAP to change password for #{login}" )
           result = User.change_password_ldap(login, ldap_password)
         rescue Exception
-          logger.debug "CONFIG['ldap_mode'] selected but 'ruby-ldap' module not installed."
+          logger.debug "OpenSuse::Ldap.enabled? selected but 'ruby-ldap' module not installed."
         end
         if result
           render_error :status => 404, :errorcode => 'change_passwd_failure', :message => "Failed to change password to ldap: #{result}"
           return
         end
       else
-        render_error :status => 404, :errorcode => 'change_passwd_no_security', :message => "LDAP mode enabled, the user password can only be changed with CONFIG['ldap_ssl'] enabling."
+        render_error :status => 404, :errorcode => 'change_passwd_no_security', :message => "LDAP mode enabled, the user password can only be changed with OpenSuse::Ldap.ssl? enabling."
         return
       end
     end

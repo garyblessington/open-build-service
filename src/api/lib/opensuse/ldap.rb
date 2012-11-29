@@ -4,7 +4,6 @@ module Suse
   class Ldap
     # Notes from config file options...
     # search_base - LDAP search base for the users who will use OBS
-    # search_attribute - Sam Account Name is the login name for LDAP
     # user_name_attribute - The attribute the users name is stored in
     # filter_users_by_group_name - By default any LDAP user can be used to authenticate to the OBS. In some deployments this may be too broad - this allows only users in a specific group
       # Note this is joined to the normal selection like so:
@@ -18,15 +17,9 @@ module Suse
     #   :local = compare the credentials supplied with those in
     #            LDAP using authentication_attribute & authentication_mechanism
     #            authentication_mechanism can be :md5 or :cleartext
-    # authenticate
-    # authentication_attribute
-    # authentication_mechanism
 
-    # ldap_entry_base -
-    # sn_attribute_required -
-    # entry_base_dn - Base dn for the new added entry
-    # sn_attribute_required -Is sn attribute required? It is a necessary attribute for most of people objectclass used for adding new entry
-    # group_support - Whether to search group info from ldap
+
+
 
 
     def self.servers
@@ -49,10 +42,12 @@ module Suse
     end
 
     def self.ssl?
+      # Use SSL or not?
       ApplicationSettings::LdapSsl.get.value
     end
 
     def self.start_tls?
+      # Use StartTLS or not?
       ApplicationSettings::LdapStartTls.get.value
     end
 
@@ -62,8 +57,6 @@ module Suse
     end
 
     def self.enabled?
-      # TODO This should replace all current application references to -- if defined?( CONFIG['ldap_mode'] ) && CONFIG['ldap_mode'] == :on
-      # e.g. Suse::Ldap.enabled?
       # LDAP mode enabled? All other LDAP options rely upon this.
       ApplicationSettings::LdapMode.get.value
     end
@@ -89,6 +82,7 @@ module Suse
     end
 
     def self.search_attribute
+      # Sam Account Name is the login name for LDAP
       ApplicationSettings::LdapSearchAttribute.get.value
     end
 
@@ -124,11 +118,50 @@ module Suse
       ApplicationSettings::LdapGroupMemberAttribute.get.value
     end
 
-    def self.filter_users_by_group_name
+    def self.group_support?
+      # Whether to search group info from ldap
+      ApplicationSettings::LdapGroupSupport.get.value
+    end
+
+    def self.filter_users_by_group_name?
       # By default any LDAP user can be used to authenticate to the OBS.
       # In some deployments this may be too broad - this allows only users in a specific group
       ApplicationSettings::LdapFilterUsersByGroupName.get.value
     end
+
+    def self.mail_attribute
+      ApplicationSettings::LdapMailAttribute.get.value
+    end
+
+    def self.authentication
+      ApplicationSettings::LdapAuthentication.get.value
+    end
+
+    def self.authentication_attribute
+      ApplicationSettings::LdapAuthenticationAttribute.get.value
+    end
+
+    def self.name_attribute
+      ApplicationSettings::LdapNameAttribute.get.value
+    end
+
+    def self.authentication_mechanism
+      ApplicationSettings::LdapAuthenticationMechanism.get.value
+    end
+
+    def self.object_class_attribute
+      ApplicationSettings::LdapObjectClassAttribute.get.value
+    end
+
+    def self.user_name_attribute
+      ApplicationSettings::LdapUserNameAttribute.get.value
+    end
+
+    def self.sn_attribute_required?
+      # Is sn attribute required? It is a necessary attribute for most of people objectclass used for adding new entry
+      ApplicationSettings::LdapSnAttributeRequired.get.value
+    end
+
 
     # Populates db-based config model with LDAP details from config file
     def self.migrate_config_file_to_application_settings!
