@@ -249,9 +249,9 @@ class User < ActiveRecord::Base
       logger.debug( "Unable to connect to LDAP server" )
       return "Unable to connect to LDAP server"
     end
-    user_filter = "(#{LCONFIG['dap_search_attr']}=#{login})"
+    user_filter = "(#{ Suse::Ldap.search_attribute }=#{ login })"
     dn = String.new
-    ldap_con.search( CONFIG['ldap_search_base'], LDAP::LDAP_SCOPE_SUBTREE, user_filter ) do |entry|
+    ldap_con.search(Suse::Ldap.user_search_base, LDAP::LDAP_SCOPE_SUBTREE, user_filter) do |entry|
       dn = entry.dn
     end
     if dn.empty?
@@ -261,16 +261,16 @@ class User < ActiveRecord::Base
 
     # Update mail/password info
     entry = [
-             LDAP.mod(LDAP::LDAP_MOD_REPLACE,CONFIG['ldap_mail_attr'],[newemail]),
+             LDAP.mod(LDAP::LDAP_MOD_REPLACE, Suse::Ldap.mail_attribute, [newemail]),
             ]
     if newpassword
-      case CONFIG['ldap_auth_mech']
+      case Suse::Ldap.authentication_mechanism
       when :cleartext then
-        entry << LDAP.mod(LDAP::LDAP_MOD_REPLACE,CONFIG['ldap_auth_attr'],[newpassword])
+        entry << LDAP.mod(LDAP::LDAP_MOD_REPLACE, Suse::Ldap.authentication_attribute, [newpassword])
       when :md5 then
         require 'digest/md5'
         require 'base64'
-        entry << LDAP.mod(LDAP::LDAP_MOD_REPLACE,CONFIG['ldap_auth_attr'],["{MD5}"+Base64.b64encode(Digest::MD5.digest(newpassword)).chomp])
+        entry << LDAP.mod(LDAP::LDAP_MOD_REPLACE, Suse::Ldap.authentication_attribute, ["{MD5}" + Base64.b64encode(Digest::MD5.digest(newpassword)).chomp])
       end
     end
     begin
@@ -283,7 +283,7 @@ class User < ActiveRecord::Base
     # Update the dn name if it is changed
     if not login == newlogin
       begin
-        ldap_con.modrdn(dn,"#{CONFIG['ldap_name_attr']}=#{newlogin}", true)
+        ldap_con.modrdn(dn,"#{ Suse::Ldap.name_attribute }=#{newlogin}", true)
       rescue LDAP::ResultError
         logger.debug("Error #{ldap_con.err} for #{login} dn name changing")
         return "Failed to update dn name for #{login}: error #{ldap_con.err}"
@@ -297,6 +297,7 @@ class User < ActiveRecord::Base
   # active directory server.  Return the error msg if any error occurred
   def self.new_entry_ldap(login, password, mail)
     require 'ldap'
+
     logger.debug( "Add new entry for #{login} using ldap" )
     if @@ldap_search_con.nil?
       @@ldap_search_con = initialize_ldap_con
@@ -306,7 +307,8 @@ class User < ActiveRecord::Base
       logger.debug( "Unable to connect to LDAP server" )
       return "Unable to connect to LDAP server"
     end
-    case CONFIG['ldap_auth_mech']
+
+    case Suse::Ldap.authentication_mechanism
     when :cleartext then
       ldap_password = password
     when :md5 then
@@ -314,22 +316,23 @@ class User < ActiveRecord::Base
       require 'base64'
       ldap_password = "{MD5}"+Base64.b64encode(Digest::MD5.digest(password)).chomp
     end
+
     entry = [
-             LDAP.mod(LDAP::LDAP_MOD_ADD,'objectclass',CONFIG['ldap_object_class']),
-             LDAP.mod(LDAP::LDAP_MOD_ADD,CONFIG['ldap_name_attr'],[login]),
-             LDAP.mod(LDAP::LDAP_MOD_ADD,CONFIG['ldap_auth_attr'],[ldap_password]),
-             LDAP.mod(LDAP::LDAP_MOD_ADD,CONFIG['ldap_mail_attr'],[mail]),
+             LDAP.mod(LDAP::LDAP_MOD_ADD,'objectclass', Suse::Ldap.object_class_attribute),
+             LDAP.mod(LDAP::LDAP_MOD_ADD, Suse::Ldap.user_name_attribute, [login]),
+             LDAP.mod(LDAP::LDAP_MOD_ADD, Suse::Ldap.user_name_attribute, [ldap_password]),
+             LDAP.mod(LDAP::LDAP_MOD_ADD, Suse::Ldap.mail_attribute, [mail]),
             ]
     # Added required sn attr
-    if defined?( CONFIG['ldap_sn_attr_required'] ) && CONFIG['ldap_sn_attr_required'] == :on
-      entry << LDAP.mod(LDAP::LDAP_MOD_ADD,'sn',[login])
+    if Suse::Ldap.sn_attribute_required?
+      entry << LDAP.mod(LDAP::LDAP_MOD_ADD, 'sn', [login])
     end
 
     begin
-      ldap_con.add("#{CONFIG['ldap_name_attr']}=#{login},#{CONFIG['ldap_entry_base']}", entry)
+      ldap_con.add("#{ Suse::Ldap.name_attribute }=#{ login },#{ Suse::Ldap.entry_base }", entry)
     rescue LDAP::ResultError
-      logger.debug("Error #{ldap_con.err} for #{login}")
-      return "Failed to add a new entry for #{login}: error #{ldap_con.err}"
+      logger.debug("Error #{ ldap_con.err } for #{ login }")
+      return "Failed to add a new entry for #{ login }: error #{ ldap_con.err }"
     end
     return
   end
@@ -346,9 +349,9 @@ class User < ActiveRecord::Base
       logger.debug( "Unable to connect to LDAP server" )
       return "Unable to connect to LDAP server"
     end
-    user_filter = "(#{LCONFIG['dap_search_attr']}=#{login})"
+    user_filter = "(#{ Suse::Ldap.search_attribute }=#{ login })"
     dn = String.new
-    ldap_con.search( CONFIG['ldap_search_base'], LDAP::LDAP_SCOPE_SUBTREE, user_filter ) do |entry|
+    ldap_con.search(Suse::Ldap.search_base, LDAP::LDAP_SCOPE_SUBTREE, user_filter) do |entry|
       dn = entry.dn
     end
     if dn.empty?
@@ -366,19 +369,19 @@ class User < ActiveRecord::Base
 
   # Check if ldap group support is enabled?
   def self.ldapgroup_enabled?
-    return CONFIG['ldap_mode'] == :on && CONFIG['ldap_group_support'] == :on
+    return Suse::Ldap.enabled? && Suse::Ldap.group_support?
   end
 
   # This static method tries to find a group with the given group_title to check whether the group is in the LDAP server.
   def self.find_group_with_ldap(group)
-    if defined?( CONFIG['ldap_group_objectclass_attr'] )
-      filter = "(&(#{CONFIG['ldap_group_title_attr']}=#{group})(objectclass=#{CONFIG['ldap_group_objectclass_attr']}))"
+    if Suse::Ldap.group_object_class_attribute
+      filter = "(&(#{ Suse::Ldap.group_title_attribute }=#{ group })(objectclass=#{ Suse::Ldap.group_object_class_attribute }))"
     else
-      filter = "(#{CONFIG['ldap_group_title_attr']}=#{group})"
+      filter = "(#{ Suse::Ldap.group_title_attribute }=#{ group })"
     end
-    result = search_ldap(CONFIG['ldap_group_search_base'], filter)
+    result = search_ldap(Suse::Ldap.group_search_base, filter)
     if result.nil?
-      logger.debug( "Fail to find group: #{group} in LDAP" )
+      logger.debug("Fail to find group: #{group} in LDAP")
       return false
     else
       logger.debug( "group dn: #{result[0]}" )
@@ -544,9 +547,9 @@ class User < ActiveRecord::Base
       logger.debug( "Unable to connect to LDAP server" )
       return "Unable to connect to LDAP server"
     end
-    user_filter = "(#{LCONFIG['dap_search_attr']}=#{login})"
+    user_filter = "(#{ Suse::Ldap.search_attribute }=#{ login })"
     dn = String.new
-    ldap_con.search( CONFIG['ldap_search_base'], LDAP::LDAP_SCOPE_SUBTREE, user_filter ) do |entry|
+    ldap_con.search(Suse::Ldap.search_base, LDAP::LDAP_SCOPE_SUBTREE, user_filter) do |entry|
       dn = entry.dn
     end
     if dn.empty?
@@ -554,7 +557,7 @@ class User < ActiveRecord::Base
       return "User not found in ldap"
     end
 
-    case CONFIG['ldap_auth_mech']
+    case Suse::Ldap.authentication_mechanism
     when :cleartext then
       ldap_password = password
     when :md5 then
@@ -563,7 +566,7 @@ class User < ActiveRecord::Base
       ldap_password = "{MD5}"+Base64.b64encode(Digest::MD5.digest(password)).chomp
     end
     entry = [
-             LDAP.mod(LDAP::LDAP_MOD_REPLACE, CONFIG['ldap_auth_attr'], [ldap_password]),
+             LDAP.mod(LDAP::LDAP_MOD_REPLACE, Suse::Ldap.authentication_attribute, [ldap_password]),
             ]
     begin
       ldap_con.modify(dn, entry)
@@ -613,27 +616,27 @@ class User < ActiveRecord::Base
         return nil
       end
 
-      if defined?( CONFIG['ldap_user_filter'] )
-        user_filter = "(&(#{CONFIG['dap_search_attr']}=#{login})#{CONFIG['ldap_user_filter']})"
+      if Suse::Ldap.filter_users_by_group_name.present?
+        user_filter = "(&(#{ Suse::Ldap.search_attribute }=#{ login })#{ Suse::Ldap.filter_users_by_group_name })"
       else
-        user_filter = "(#{CONFIG['dap_search_attr']}=#{login})"
+        user_filter = "(#{ Suse::Ldap.search_attribute }=#{ login })"
       end
-      logger.debug( "Search for #{user_filter}" )
+      logger.debug("Search for #{user_filter}")
       begin
-        ldap_con.search( CONFIG['ldap_search_base'], LDAP::LDAP_SCOPE_SUBTREE, user_filter ) do |entry|
+        ldap_con.search(Suse::Ldap.search_base, LDAP::LDAP_SCOPE_SUBTREE, user_filter) do |entry|
           dn = entry.dn
-          ldap_info[0] = String.new(entry[CONFIG['ldap_mail_attr']][0])
-          if defined?( CONFIG['ldap_authenticate'] ) && CONFIG['ldap_authenticate'] == :local
-            if entry[CONFIG['ldap_auth_attr']] then
-              ldap_password = entry[CONFIG['ldap_auth_attr']][0]
-              logger.debug( "Get auth_attr:#{ldap_password}" )
+          ldap_info[0] = String.new(entry[Suse::Ldap.mail_attribute][0])
+          if Suse::Ldap.authentication == 'local'
+            if entry[Suse::Ldap.authentication_attribute]
+              ldap_password = entry[Suse::Ldap.authentication_attribute][0]
+              logger.debug( "Get auth_attr:#{ ldap_password }" )
             else
-              logger.debug( "Failed to get attr:#{CONFIG['ldap_auth_attr']}" )
+              logger.debug("Failed to get attr:#{ Suse::Ldap.authentication_attribute }")
             end
           end
         end
       rescue
-        logger.debug( "Search failed:  error #{ @@ldap_search_con.err}: #{ @@ldap_search_con.err2string(@@ldap_search_con.err)}" )
+        logger.debug( "Search failed: error #{ @@ldap_search_con.err}: #{ @@ldap_search_con.err2string(@@ldap_search_con.err)}" )
         @@ldap_search_con.unbind()
         @@ldap_search_con = nil
         if ldap_fist_try
@@ -648,10 +651,10 @@ class User < ActiveRecord::Base
       return nil
     end
     # Attempt to authenticate user
-    case CONFIG['ldap_authenticate']
+    case Suse::Ldap.authentication
     when :local then
       authenticated = false
-      case CONFIG['ldap_auth_mech']
+      case Suse::Ldap.authentication_mechanism
       when :cleartext then
         if ldap_password == password then
           authenticated = true
@@ -664,22 +667,22 @@ class User < ActiveRecord::Base
         end
       end
       if authenticated == true
-        ldap_info[0] = String.new(entry[CONFIG['ldap_mail_attr']][0])
-        ldap_info[1] = String.new(entry[CONFIG['ldap_name_attr']][0])
+        ldap_info[0] = String.new(entry[Suse::Ldap.mail_attribute][0])
+        ldap_info[1] = String.new(entry[Suse::Ldap.name_attribute][0])
       end
     when :ldap then
       # Don't match the passwd locally, try to bind to the ldap server
       user_con= initialize_ldap_con(dn, password)
       if user_con.nil?
-        logger.debug( "Unable to connect to LDAP server as #{dn} using credentials supplied" )
+        logger.debug( "Unable to connect to LDAP server as #{ dn } using credentials supplied" )
       else
         # Redo the search as the user for situations where the anon search may not be able to see attributes
-        user_con.search( CONFIG['ldap_search_base'], LDAP::LDAP_SCOPE_SUBTREE,  user_filter ) do |entry|
-          if entry[CONFIG['ldap_mail_attr']] then
-            ldap_info[0] = String.new(entry[CONFIG['ldap_mail_attr']][0])
+        user_con.search(Suse::Ldap.search_base, LDAP::LDAP_SCOPE_SUBTREE,  user_filter ) do |entry|
+          if entry[Suse::Ldap.mail_attribute] then
+            ldap_info[0] = String.new(entry[Suse::Ldap.mail_attribute][0])
           end
-          if entry[CONFIG['ldap_name_attr']] then
-            ldap_info[1] = String.new(entry[CONFIG['ldap_name_attr']][0])
+          if entry[Suse::Ldap.name_attribute]
+            ldap_info[1] = String.new(entry[Suse::Ldap.name_attribute][0])
           else
             ldap_info[1] = login
           end

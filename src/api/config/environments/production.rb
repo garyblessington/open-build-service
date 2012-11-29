@@ -17,22 +17,24 @@ OBSApi::Application.configure do
   # config.action_mailer.raise_delivery_errors = false
 
   config.active_support.deprecation = :log
- 
+
    # Enable serving of images, stylesheets, and javascripts from an asset server
    # config.action_controller.asset_host                  = "http://assets.example.com"
- 
-  config.cache_store = :mem_cache_store, 'localhost:11211', {:namespace => 'obs-api', :compress => true }
 
+  config.cache_store = :mem_cache_store, 'localhost:11211', {:namespace => 'obs-api', :compress => true }
 end
 
+
+############################################################################
+# NOTE: CONFIG variables are no longer used for LDAP.
+# These are now stored in the database, and can be managed through the webui
+############################################################################
 # LDAP port defaults to 636 for ldaps and 389 for ldap and ldap with StartTLS
 #CONFIG['ldap_port']=
 # Authentication with Windows 2003 AD requires
 CONFIG['ldap_referrals'] = :off
-
 # Max number of times to attempt to contact the LDAP servers
 CONFIG['ldap_max_attempts'] = 10
-
 # OVERRIDE with your company's ldap search base for the users who will use OBS
 CONFIG['ldap_search_base'] = "OU=Organizational Unit,DC=Domain Component"
 # Sam Account Name is the login name for LDAP

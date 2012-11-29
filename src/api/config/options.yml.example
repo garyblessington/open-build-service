@@ -64,8 +64,11 @@ yml_url: http://software.opensuse.org/ymp
 #version
 #webui_host
 
-# LDAP options
 
+############################################################################
+# NOTE: CONFIG variables are no longer used for LDAP.
+# These are now stored in the database, and can be managed through the webui
+############################################################################
 ldap_mode: :off
 
 # Sam Account Name is the login name for LDAP 

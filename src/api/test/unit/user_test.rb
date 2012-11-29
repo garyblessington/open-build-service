@@ -8,7 +8,7 @@ class UserTest < ActiveSupport::TestCase
     @project = projects( :home_Iggy )
     @user = User.find_by_login("Iggy")
   end
-  
+
   def test_basics
     assert @project
     assert @user
@@ -21,7 +21,7 @@ class UserTest < ActiveSupport::TestCase
   def test_access
     assert @user.has_local_permission? 'change_project', @project
     assert @user.has_local_permission? 'change_package', packages( :TestPack )
-    
+
     m = Role.find_by_title("maintainer")
     assert @user.has_local_role?(m, @project )
     assert @user.has_local_role?(m, packages( :TestPack ) )
@@ -39,7 +39,7 @@ class UserTest < ActiveSupport::TestCase
     tom = users( :tom )
     assert !tom.has_local_permission?('change_project', projects( :kde4 ))
     assert !tom.has_local_permission?('change_package', packages( :kdelibs ))
-  end 
+  end
 
   def test_group
     assert !@user.is_in_group?("notexistant")
@@ -65,13 +65,17 @@ class UserTest < ActiveSupport::TestCase
 
   def test_ldap
     assert !@user.local_role_check_with_ldap( roles(:maintainer), @project)
-    ldm, lgs, CONFIG['ldap_mode'], CONFIG['ldap_group_support'] = CONFIG['ldap_mode'], CONFIG['ldap_group_support'], :on, :on
-    
+    ldm = Suse::Ldap.enabled?
+    lgs = Suse::Ldap.group_support?
+    ApplicationSettings::LdapMode.set!(true)
+    ApplicationSettings::LdapGroupSupport.set!(true)
+
     user = users( :tom )
     assert !user.has_local_permission?('change_project', projects( :kde4) )
     assert !user.has_local_permission?('change_package', packages( :kdelibs ))
 
-    CONFIG['ldap_mode'], CONFIG['ldap_group_support'] = ldm, lgs
+    ApplicationSettings::LdapMode.set!(ldm)
+    ApplicationSettings::LdapGroupSupport.set!(lgs)
   end
 
   def test_states

@@ -56,7 +56,7 @@ class AuthenticationEngineTest < ActiveSupport::TestCase
   end
 
   def test_ldap_engine_x_http_authorization_header_ldap_mode_on
-    @config['ldap_mode'] = :on
+    ApplicationSettings::LdapMode.set!(true)
 
     @environment['X-HTTP-Authorization'] = 'Joe'
 
@@ -66,7 +66,7 @@ class AuthenticationEngineTest < ActiveSupport::TestCase
   end
 
   def test_ldap_engine_authorization_header_ldap_mode_on
-    @config['ldap_mode'] = :on
+    ApplicationSettings::LdapMode.set!(true)
 
     @environment['Authorization'] = 'Joe'
 
@@ -75,7 +75,7 @@ class AuthenticationEngineTest < ActiveSupport::TestCase
   end
 
   def test_ldap_engine_http_authorization_header_ldap_mode_on
-    @config['ldap_mode'] = :on
+    ApplicationSettings::LdapMode.set!(true)
 
     @environment['HTTP_AUTHORIZATION'] = 'Joe'
 
@@ -84,7 +84,7 @@ class AuthenticationEngineTest < ActiveSupport::TestCase
   end
 
   def test_ldap_engine_ldap_mode_off
-    @config['ldap_mode'] = :off
+    ApplicationSettings::LdapMode.set!(false)
 
     @environment['HTTP_AUTHORIZATION'] = 'Joe'
 
