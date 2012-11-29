@@ -2,26 +2,6 @@ require 'ldap'
 
 module Suse
   class Ldap
-    # Notes from config file options...
-    # search_base - LDAP search base for the users who will use OBS
-    # user_name_attribute - The attribute the users name is stored in
-    # filter_users_by_group_name - By default any LDAP user can be used to authenticate to the OBS. In some deployments this may be too broad - this allows only users in a specific group
-      # Note this is joined to the normal selection like so:
-      #   (&(#{ search_attr }=#{ login })#{ filter_users_by_group_name })
-      # giving an ldap search of:
-      #   (&(sAMAccountName=#{login})(memberof=CN=group,OU=Groups,DC=Domain Component))
-      # Also note that openLDAP must be configured to use the memberOf overlay
-
-    # How to verify:
-    #   :ldap = attempt to bind to ldap as user using supplied credentials
-    #   :local = compare the credentials supplied with those in
-    #            LDAP using authentication_attribute & authentication_mechanism
-    #            authentication_mechanism can be :md5 or :cleartext
-
-
-
-
-
     def self.servers
       # Colon-separated list of LDAP servers, one of which is selected randomly during a connection
       ApplicationSettings::LdapServers.get.value
