@@ -103,7 +103,7 @@ module Suse
       ApplicationSettings::LdapGroupSupport.get.value
     end
 
-    def self.filter_users_by_group_name?
+    def self.filter_users_by_group_name
       # By default any LDAP user can be used to authenticate to the OBS.
       # In some deployments this may be too broad - this allows only users in a specific group
       ApplicationSettings::LdapFilterUsersByGroupName.get.value
