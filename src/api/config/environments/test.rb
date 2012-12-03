@@ -25,7 +25,6 @@ OBSApi::Application.configure do
   config.cache_store = :memory_store
 
   config.active_support.deprecation = :log
-
 end
 
 # Look for a YAML file with test details that will allow people to run tests with different configurations
@@ -52,3 +51,11 @@ CONFIG['global_write_through'] = false
 CONFIG['errbit_api_key'] = 'INVALID'
 CONFIG['errbit_host'] = '192.0.2.0'
 
+require 'socket'
+fname = "#{Rails.root}/config/environments/test.#{Socket.gethostname}.rb"
+if File.exists? fname
+  STDERR.puts "Using local environment #{fname}"
+  eval File.read(fname)
+else
+  STDERR.puts "Custom test.#{Socket.gethostname}.rb not found - using defaults"
+end

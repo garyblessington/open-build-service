@@ -50,6 +50,7 @@
 /src/webui/app/views/maintenance/released_*
 /src/webui/config/database.yml
 /src/webui/config/environments/development.*.rb
+/src/webui/config/environments/test.*.rb
 /src/webui/config/options.yml
 /src/webui/config/repositories.rb
 /src/webui/config/initializers/hoptoad.rb
