@@ -418,7 +418,7 @@ class User < ActiveRecord::Base
   def accessible_groups(opts = {})
     # Returns a list of the groups that a user can access
     opts[:refresh_cache] ||= false
-    cache_key = "user_#{ self.id }_groups"
+    cache_key = "groups_user_#{ self.id }"
     if opts[:refresh_cache] == false && group_ids = Rails.cache.fetch(cache_key)
       groups = Group.where('id IN (?)', group_ids)
     else
@@ -426,7 +426,11 @@ class User < ActiveRecord::Base
       unless self.is_admin?
         if Suse::Ldap.group_member_of_validation?
           ldap_groups = User.render_grouplist_ldap(groups.map(&:title), self.login)
-          groups.reject! { |group| group.ldap_group_member_of_validation? && !ldap_groups.include?(group.title) }
+          groups.reject! do |group|
+            reject = group.ldap_group_member_of_validation? && !ldap_groups.include?(group.title)
+            logger.debug "User has not been assigned access to group #{ group.title } on LDAP server" if reject && group.ldap_group_member_of_validation?
+            reject
+          end
         end
       end
       Rails.cache.write(cache_key, groups.map(&:id), :expires_in => 8.hours)
