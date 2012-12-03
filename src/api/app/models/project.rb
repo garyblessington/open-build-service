@@ -61,12 +61,37 @@ class Project < ActiveRecord::Base
 
   attr_accessible :name, :title, :description
 
-  default_scope { where("projects.id not in (?)", ProjectUserRoleRelationship.forbidden_project_ids ) }
+  #default_scope { where("projects.id not in (?)", ProjectUserRoleRelationship.forbidden_project_ids ) }
+  default_scope { where("projects.id IN (?)", Project.accessible ) }
 
   validates :name, presence: true, length: { maximum: 200 }
   validate :valid_name
 
- 
+
+  def self.accessible
+    user_id = User.nobodyID
+    if User.current
+      return Project.all if User.current.is_admin?
+      user_id = User.current.id
+      user = User.current
+    else
+      user = User.find(user_id)
+    end
+
+    projects = nil
+    cache_key = "projects_user_#{ user.id }"
+    user_project_ids_cache = Rails.cache.fetch(cache_key) do
+      projects = Project.find(:all,
+        :joins => "LEFT JOIN project_user_role_relationships purr ON projects.id = purr.db_project_id
+          LEFT JOIN project_group_role_relationships pgrr ON projects.id = pgrr.db_project_id
+          LEFT JOIN flags f ON projects.id = f.db_project_id",
+        :conditions => ['f.flag <> ? OR f.flag IS NULL OR (purr.bs_user_id = ? OR pgrr.bs_group_id IN (?))', 'access', user.id, user.accessible_groups.map(&:id)])
+      projects.uniq.map(&:id)
+    end
+    projects = Project.where("id IN (?)", user_project_ids_cache) if projects.nil?
+    projects
+  end
+
   def download_name
     self.name.gsub(/:/, ':/')
   end
@@ -1595,7 +1620,7 @@ class Project < ActiveRecord::Base
     # this length check is duplicated but useful for other uses for this function
     return false if name.length > 200 || name.blank?
     return false if name =~ %r{[\/\000-\037]}
-    return false if name =~ %r{^[_\.]} 
+    return false if name =~ %r{^[_\.]}
     return true
   end
 
