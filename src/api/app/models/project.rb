@@ -61,12 +61,37 @@ class Project < ActiveRecord::Base
 
   attr_accessible :name, :title, :description
 
-  default_scope { where("projects.id not in (?)", ProjectUserRoleRelationship.forbidden_project_ids ) }
+  #default_scope { where("projects.id not in (?)", ProjectUserRoleRelationship.forbidden_project_ids ) }
+  default_scope { where("projects.id IN (?)", Project.accessible ) }
 
   validates :name, presence: true, length: { maximum: 200 }
   validate :valid_name
 
- 
+
+  def self.accessible
+    user_id = User.nobodyID
+    if User.current
+      return Project.all if User.current.is_admin?
+      user_id = User.current.id
+      user = User.current
+    else
+      user = User.find(user_id)
+    end
+
+    projects = nil
+    cache_key = "projects_user_#{ user.id }"
+    user_project_ids_cache = Rails.cache.fetch(cache_key) do
+      projects = Project.find(:all,
+        :joins => "LEFT JOIN project_user_role_relationships purr ON projects.id = purr.db_project_id
+          LEFT JOIN project_group_role_relationships pgrr ON projects.id = pgrr.db_project_id
+          LEFT JOIN flags f ON projects.id = f.db_project_id",
+        :conditions => ['f.flag <> ? OR f.flag IS NULL OR (purr.bs_user_id = ? OR pgrr.bs_group_id IN (?))', 'access', user.id, user.accessible_groups.map(&:id)])
+      projects.uniq.map(&:id)
+    end
+    projects = Project.where("id IN (?)", user_project_ids_cache) if projects.nil?
+    projects
+  end
+
   def download_name
     self.name.gsub(/:/, ':/')
   end
@@ -1326,7 +1351,7 @@ class Project < ActiveRecord::Base
       pkg.project.expand_all_projects.each do |prj|
         p = prj.packages.find_by_name(pkg.name )
         next if p.nil? or already_checked[p.id]
-       
+
         already_checked[p.id] = 1
 
         m = extract_maintainer(self, p.resolve_devel_package, filter, owner) if devel == true
@@ -1369,15 +1394,15 @@ class Project < ActiveRecord::Base
     defined_packages.uniq!
 
     all_packages = Package.where("db_project_id in (?)", projects).select(:name).map{ |p| p.name}
-  
-    undefined_packages = all_packages - defined_packages 
+
+    undefined_packages = all_packages - defined_packages
     maintainers=[]
 
     undefined_packages.each do |p|
       next if p =~ /\A_product:\w[-+\w\.]*\z/
 
       pkg = self.find_package(p)
-      
+
       m = {}
       m[:rootproject] = self.name
       m[:project] = pkg.project.name
@@ -1640,7 +1665,7 @@ class Project < ActiveRecord::Base
     # this length check is duplicated but useful for other uses for this function
     return false if name.length > 200 || name.blank?
     return false if name =~ %r{[ \/\000-\037]}
-    return false if name =~ %r{^[_\.]} 
+    return false if name =~ %r{^[_\.]}
     return true
   end
 
