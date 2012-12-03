@@ -28,8 +28,15 @@ OBSApi::Application.configure do
 
 end
 
-CONFIG['source_host'] = "localhost"
-CONFIG['source_port'] = 3200
+# Look for a YAML file with test details that will allow people to run tests with different configurations
+# for their OBS server backend
+if source_config = YAML.load(File.open("#{ Rails.root }/config/source.yml"))
+  CONFIG['source_host'] = source_config["source_host"]
+  CONFIG['source_port'] = source_config["source_port"]
+else
+  CONFIG['source_host'] = "localhost"
+  CONFIG['source_port'] = 3200
+end
 
 CONFIG['proxy_auth_mode']=:off
 CONFIG['download_url'] = 'http://example.com/download'
