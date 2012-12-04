@@ -81,4 +81,35 @@ class UserTest < ActiveSupport::TestCase
   def test_states
     assert_not_nil User.states
   end
+
+  def test_ldap_group_member_of_validation_failure
+    gmov = Suse::Ldap.group_member_of_validation?
+    ApplicationSettings::LdapGroupMemberOfValidation.set!(true)
+    group = groups(:test_group)
+    group.ldap_group_member_of_validation = true
+    group.save
+
+    user = users(:adrian)
+    assert user.accessible_groups(:refresh_cache => true).include?(group) == false
+
+    group.ldap_group_member_of_validation = false
+    group.save
+    ApplicationSettings::LdapGroupMemberOfValidation.set!(gmov)
+  end
+
+  def test_ldap_group_member_of_validation_success
+    gmov = Suse::Ldap.group_member_of_validation?
+    ApplicationSettings::LdapGroupMemberOfValidation.set!(true)
+    group = groups(:test_group)
+    group.ldap_group_member_of_validation = true
+    group.save
+
+    user = users(:adrian)
+    User.expects(:render_grouplist_ldap).with(user.groups.map(&:title), user.login).returns([group.title])
+    assert user.accessible_groups(:refresh_cache => true).include?(group) == true
+
+    group.ldap_group_member_of_validation = false
+    group.save
+    ApplicationSettings::LdapGroupMemberOfValidation.set!(gmov)
+  end
 end
