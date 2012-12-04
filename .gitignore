@@ -25,6 +25,7 @@
 /src/api/.bundle
 /src/api/config/database.yml
 /src/api/config/environments/development.*.rb
+/src/api/config/environments/test.*.rb
 /src/api/config/options.yml
 /src/api/config/secret.key
 /src/api/coverage
