@@ -422,8 +422,8 @@ class User < ActiveRecord::Base
     if opts[:refresh_cache] == false && group_ids = Rails.cache.fetch(cache_key)
       groups = Group.where('id IN (?)', group_ids)
     else
-      groups = Group.all
       unless self.is_admin?
+        groups = self.groups
         if Suse::Ldap.group_member_of_validation?
           ldap_groups = User.render_grouplist_ldap(groups.map(&:title), self.login)
           groups.reject! do |group|
@@ -432,6 +432,8 @@ class User < ActiveRecord::Base
             reject
           end
         end
+      else
+        groups = Group.all
       end
       Rails.cache.write(cache_key, groups.map(&:id), :expires_in => 8.hours)
     end
