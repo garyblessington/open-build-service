@@ -78,7 +78,6 @@ class Project < ActiveRecord::Base
       user = User.find(user_id)
     end
 
-    projects = nil
     cache_key = "projects_user_#{ user.id }"
     user_project_ids_cache = Rails.cache.fetch(cache_key) do
       project_ids = []
