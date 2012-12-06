@@ -8,15 +8,15 @@ class ProjectTest < ActiveSupport::TestCase
   def setup
     @project = projects( :home_Iggy )
   end
-    
+
   def test_flags_to_axml
     #check precondition
     assert_equal 2, @project.type_flags('build').size
     assert_equal 2, @project.type_flags('publish').size
-    
+
     xml_string = @project.to_axml
     #puts xml_string
-    
+
     #check the results
     assert_xml_tag xml_string, :tag => :project, :children => { :count => 1, :only => { :tag => :build } }
     assert_xml_tag xml_string, :parent => :project, :tag => :build, :children => { :count => 2 }
@@ -25,21 +25,21 @@ class ProjectTest < ActiveSupport::TestCase
     assert_xml_tag xml_string, :parent => :project, :tag => :publish, :children => { :count => 2 }
 
   end
-  
-  
+
+
   def test_add_new_flags_from_xml
-    
+
     #precondition check
     @project.flags.delete_all
     @project.reload
     assert_equal 0, @project.flags.size
-    
+
     #project is given as axml
     axml = Xmlhash.parse(
       "<project name='home:Iggy'>
         <title>Iggy's Home Project</title>
-        <description></description> 
-        <build> 
+        <description></description>
+        <build>
           <disable repository='10.2' arch='i586'/>
         </build>
         <publish>
@@ -50,62 +50,62 @@ class ProjectTest < ActiveSupport::TestCase
         </debuginfo>
       </project>"
       )
-    
+
     position = 1
     ['build', 'publish', 'debuginfo'].each do |flagtype|
       position = @project.update_flags(axml, flagtype, position)
     end
-    
+
     @project.save
     @project.reload
-    
+
     #check results
     assert_equal 1, @project.type_flags('build').size
     assert_equal 'disable', @project.type_flags('build')[0].status
     assert_equal '10.2', @project.type_flags('build')[0].repo
     assert_equal 'i586', @project.type_flags('build')[0].architecture.name
     assert_equal 1, @project.type_flags('build')[0].position
-    assert_nil @project.type_flags('build')[0].package    
+    assert_nil @project.type_flags('build')[0].package
     assert_equal 'home:Iggy', @project.type_flags('build')[0].project.name
-    
+
     assert_equal 1, @project.type_flags('publish').size
     assert_equal 'enable', @project.type_flags('publish')[0].status
     assert_equal '10.2', @project.type_flags('publish')[0].repo
     assert_equal 'x86_64', @project.type_flags('publish')[0].architecture.name
     assert_equal 2, @project.type_flags('publish')[0].position
-    assert_nil @project.type_flags('publish')[0].package    
-    assert_equal 'home:Iggy', @project.type_flags('publish')[0].project.name  
-    
+    assert_nil @project.type_flags('publish')[0].package
+    assert_equal 'home:Iggy', @project.type_flags('publish')[0].project.name
+
     assert_equal 1, @project.type_flags('debuginfo').size
     assert_equal 'disable', @project.type_flags('debuginfo')[0].status
     assert_equal '10.0', @project.type_flags('debuginfo')[0].repo
     assert_equal 'i586', @project.type_flags('debuginfo')[0].architecture.name
     assert_equal 3, @project.type_flags('debuginfo')[0].position
-    assert_nil @project.type_flags('debuginfo')[0].package    
-    assert_equal 'home:Iggy', @project.type_flags('debuginfo')[0].project.name      
-    
+    assert_nil @project.type_flags('debuginfo')[0].package
+    assert_equal 'home:Iggy', @project.type_flags('debuginfo')[0].project.name
+
   end
-  
-  
+
+
   def test_delete_flags_through_xml
     #check precondition
     assert_equal 2, @project.type_flags('build').size
     assert_equal 2, @project.type_flags('publish').size
-    
+
     #project is given as axml
     axml = Xmlhash.parse(
       "<project name='home:Iggy'>
         <title>Iggy's Home Project</title>
-        <description></description> 
+        <description></description>
       </project>"
-      )    
-    
+      )
+
     @project.update_all_flags(axml)
     assert_equal 0, @project.type_flags('build').size
     assert_equal 0, @project.type_flags('publish').size
   end
 
-    
+
   def test_store_axml
     original = @project.to_axml
 
@@ -116,19 +116,19 @@ class ProjectTest < ActiveSupport::TestCase
         <description></description>
         <debuginfo>
           <disable repository='10.0' arch='i586'/>
-        </debuginfo>    
+        </debuginfo>
         <url></url>
         <disable/>
       </project>"
       )
-      
+
     @project.update_from_xml(axml)
-    
+
     assert_equal 0, @project.type_flags('build').size
-    assert_equal 1, @project.type_flags('debuginfo').size        
+    assert_equal 1, @project.type_flags('debuginfo').size
 
     @project.update_from_xml(Xmlhash.parse(original))
-  end  
+  end
 
   def test_ordering
     #project is given as axml
@@ -144,13 +144,13 @@ class ProjectTest < ActiveSupport::TestCase
       </project>"
       )
     @project.update_from_xml(axml)
-    
+
     xml = @project.render_axml
-    
+
     # validate i586 is in the middle
     assert_xml_tag xml, :tag => :arch, :content => 'i586', :after => { :tag => :arch, :content => 'local' }
     assert_xml_tag xml, :tag => :arch, :content => 'i586', :before => { :tag => :arch, :content => 'x86_64' }
-    
+
     # now verify it's not happening randomly
     #project is given as axml
     axml = Xmlhash.parse(
@@ -167,13 +167,13 @@ class ProjectTest < ActiveSupport::TestCase
     @project.update_from_xml(axml)
 
     xml = @project.render_axml
-    
+
     # validate x86_64 is in the middle
     assert_xml_tag xml, :tag => :arch, :content => 'x86_64', :after => { :tag => :arch, :content => 'i586' }
     assert_xml_tag xml, :tag => :arch, :content => 'x86_64', :before => { :tag => :arch, :content => 'local' }
-    
+
   end
-    
+
   test "duplicated repos" do
      orig = @project.render_axml
 
@@ -260,8 +260,8 @@ END
     assert_equal true, maintained_project.set_maintenance_project(maintenance_project.name)
     assert_equal maintenance_project, maintained_project.maintenance_project()
   end
-  
-  
+
+
   #helper
   def put_flags(flags)
     flags.each do |flag|
@@ -271,9 +271,28 @@ END
         puts "#{flag} \t #{flag.id} \t #{flag.status} \t #{flag.architecture.name} \t #{flag.repo} \t #{flag.position}"
       end
     end
-  end  
-  
-  
+  end
+
+  def test_forbidden_project_ids_for_adrian
+    # Testing against access to HiddenProject and HiddenRemoteInstance
+    # Adrian is only associated to HiddenProject via a ProjectGroupRoleRelationship
+    User.current = users(:adrian)
+    assert_equal [3006], Project.forbidden_project_ids.sort
+  end
+
+  def test_forbidden_project_ids_for_iggy
+    # Testing against access to HiddenProject and HiddenRemoteInstance
+    # Iggy is not associated in any way to either project
+    User.current = users(:Iggy)
+    assert_equal [3000, 3006], Project.forbidden_project_ids.sort
+  end
+
+  def test_forbidden_project_ids_for_hidden_homer
+    # Testing against access to HiddenProject and HiddenRemoteInstance
+    # Hidden Homer is associated to both projects via a ProjectUserRoleRelationship
+    User.current = users(:hidden_homer)
+    assert_equal [0], Project.forbidden_project_ids.sort
+  end
 end
 
 

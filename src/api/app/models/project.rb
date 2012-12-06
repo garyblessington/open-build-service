@@ -82,16 +82,20 @@ class Project < ActiveRecord::Base
     user_project_ids_cache = Rails.cache.fetch(cache_key) do
       project_ids = []
       user_groups = user.accessible_groups.map(&:id).join(', ')
+      user_groups = "0" if user_groups.blank?
       Project.find_by_sql("
         SELECT projects.id FROM flags
-        INNER JOIN projects ON projects.id = flags.db_project_id
-        LEFT JOIN project_user_role_relationships purr ON projects.id = purr.db_project_id
-        LEFT JOIN project_group_role_relationships pgrr ON projects.id = pgrr.db_project_id
+          INNER JOIN projects ON projects.id = flags.db_project_id
+          LEFT JOIN project_user_role_relationships purr ON projects.id = purr.db_project_id AND purr.bs_user_id = #{ user.id }
+          LEFT JOIN project_group_role_relationships pgrr ON projects.id = pgrr.db_project_id AND pgrr.bs_group_id IN (#{ user_groups })
         WHERE flags.flag = 'access'
-          AND (purr.bs_user_id IS NULL OR purr.bs_user_id <> #{ user.id })
-          AND (pgrr.bs_group_id IS NULL#{ " OR pgrr.bs_group_id NOT IN (" + user_groups + ")" unless user_groups.blank? })").each do |record|
+          AND purr.bs_user_id IS NULL
+          AND  pgrr.bs_group_id IS NULL
+        ").each do |record|
           project_ids << record.id unless project_ids.include?(record.id)
         end
+      project_ids << 0 if project_ids.empty?
+      logger.debug "User is forbidden to access project IDs #{ project_ids.inspect }"
       project_ids
     end
 
