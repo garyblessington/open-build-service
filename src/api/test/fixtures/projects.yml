@@ -9,7 +9,7 @@ BaseDistro:
 HiddenProject:
   id: 3000
   name: HiddenProject
-  title: This project is not visible and not accessable except for adrian
+  title: This project is not visible and not accessable except for adrian (or anybody else that has a ProjectUserRoleRelationship or ProjectGroupRoleRelationship that grants them access)
   description: for testing read/view permissions = access disabled
   created_at: 2005-01-01 01:00:01.000000000 Z
   updated_at: 2005-01-01 01:00:01.000000000 Z
