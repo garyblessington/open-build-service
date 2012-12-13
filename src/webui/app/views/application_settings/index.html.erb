@@ -5,6 +5,82 @@
 <div class="grid_8 alpha">
   <div>
     <%= form_tag('/application_settings') do -%>
+      <h3>Authentication</h3>
+      <table>
+        <tbody>
+          <tr>
+            <td>Use iChain?</td>
+            <td>
+              On <%= radio_button_tag "AuthIchainMode", "on", @application_settings[:AuthIchainMode] == 'on' %>
+              Off <%= radio_button_tag "AuthIchainMode", "off", @application_settings[:AuthIchainMode]  == 'off' %>
+              Simulated <%= radio_button_tag "AuthIchainMode", "simulated", @application_settings[:AuthIchainMode]  == 'simulated' %>
+            </td>
+          </tr>
+          <% # Disabled for now, as this option does not work correctly with the test suite %>
+          <% if false %>
+            <tr>
+              <td>Use Proxy?</td>
+              <td>
+                On <%= radio_button_tag "AuthProxyMode", "on", @application_settings[:AuthProxyMode]  == 'on' %>
+                Off <%= radio_button_tag "AuthProxyMode", "off", @application_settings[:AuthProxyMode]  == 'off' %>
+                Simulated <%= radio_button_tag "AuthProxyMode", "simulated", @application_settings[:AuthProxyMode]  == 'simulated' %>
+              </td>
+            </tr>
+          <% end %>
+          <tr>
+            <td>Proxy User</td>
+            <td><%= text_field_tag "AuthProxyUser", @application_settings[:AuthProxyUser], :size => 50 %></td>
+          </tr>
+          <tr>
+            <td>Use LDAP?</td>
+            <td>
+              On <%= radio_button_tag "LdapMode", true, @application_settings[:LdapMode].to_bool %>
+              Off <%= radio_button_tag "LdapMode", false, !@application_settings[:LdapMode].to_bool %>
+            </td>
+          </tr>
+          <tr>
+            <td>Use Crowd?</td>
+            <td>
+              On <%= radio_button_tag "AuthCrowdMode", true, @application_settings[:AuthCrowdMode].to_bool %>
+              Off <%= radio_button_tag "AuthCrowdMode", false, !@application_settings[:AuthCrowdMode].to_bool %>
+            </td>
+          </tr>
+          <tr>
+            <td>Crowd URL</td>
+            <td><%= text_field_tag "AuthCrowdServer", @application_settings[:AuthCrowdServer], :size => 50 %></td>
+          </tr>
+          <tr>
+            <td>Crowd App Name</td>
+            <td><%= text_field_tag "AuthCrowdAppName", @application_settings[:AuthCrowdAppName], :size => 50 %></td>
+          </tr>
+          <tr>
+            <td>Crowd App Password</td>
+            <td><%= text_field_tag "AuthCrowdAppPassword", @application_settings[:AuthCrowdAppPassword], :size => 50 %></td>
+          </tr>
+          <% # Disabled for now, as this option does not work correctly with the test suite %>
+          <% if false %>
+            <tr>
+              <td>Allow Anonymous?</td>
+              <td>
+                On <%= radio_button_tag "AuthAllowAnonymous", true, @application_settings[:AuthAllowAnonymous].to_bool %>
+                Off <%= radio_button_tag "AuthAllowAnonymous", false, !@application_settings[:AuthAllowAnonymous].to_bool %>
+              </td>
+            </tr>
+          <% end %>
+          <% # Disabled for now, as this option does not work correctly with the test suite %>
+          <% if false %>
+            <tr>
+              <td>Read Only Hosts</td>
+              <td><%= text_field_tag "AuthReadOnlyHosts", @application_settings[:AuthReadOnlyHosts], :size => 50 %></td>
+            </tr>
+            <tr>
+              <td>Webui Host</td>
+              <td><%= text_field_tag "AuthWebuiHost", @application_settings[:AuthWebuiHost], :size => 50 %></td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+
       <h3>LDAP</h3>
       <table>
         <tbody>
@@ -39,13 +115,6 @@
               <td>
                 On <%= radio_button_tag "LdapReferrals", true, @application_settings[:LdapReferrals].to_bool %>
                 Off <%= radio_button_tag "LdapReferrals", false, !@application_settings[:LdapReferrals].to_bool %>
-              </td>
-            </tr>
-            <tr>
-              <td>LDAP Mode?</td>
-              <td>
-                On <%= radio_button_tag "LdapMode", true, @application_settings[:LdapMode].to_bool %>
-                Off <%= radio_button_tag "LdapMode", false, !@application_settings[:LdapMode].to_bool %>
               </td>
             </tr>
             <tr>
