@@ -120,8 +120,8 @@ class Person < ActiveXML::Node
   end
 
   def refresh_cached_groups!
+    # Force a re-caching of this user's groups in the API (User.accessible_groups)
     begin
-      # Force a re-caching of this user's groups in the API (User.accessible_groups)
       transport ||= ActiveXML::transport
       transport.direct_http URI("/group/refresh_cached_groups?login=#{ login }"), :method => "PUT"
 
