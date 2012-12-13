@@ -31,6 +31,7 @@ class ApplicationSetting < ActiveRecord::Base
       :AuthIchainMode => ApplicationSettings::AuthIchainMode.get.value,
       :AuthProxyMode => ApplicationSettings::AuthProxyMode.get.value,
       :AuthProxyUser => ApplicationSettings::AuthProxyUser.get.value,
+      :AuthOpenIdMode => ApplicationSettings::AuthOpenIdMode.get.value,
       :AuthCrowdMode => ApplicationSettings::AuthCrowdMode.get.value,
       :AuthCrowdServer => ApplicationSettings::AuthCrowdServer.get.value,
       :AuthCrowdAppName => ApplicationSettings::AuthCrowdAppName.get.value,
