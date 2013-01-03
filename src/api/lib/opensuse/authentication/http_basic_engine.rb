@@ -4,7 +4,6 @@ module Opensuse
       include Opensuse::Authentication::Logger
 
       attr_reader :configuration, :environment
-      attr_accessor :user_login
 
       def initialize(configuration, environment)
         @configuration = configuration
