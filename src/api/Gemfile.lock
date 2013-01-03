@@ -43,6 +43,7 @@ GEM
     faker (1.1.2)
       i18n (~> 0.5)
     fast_xs (0.8.0)
+    hashie (1.2.0)
     hike (1.2.1)
     hoptoad_notifier (2.4.11)
       activesupport
@@ -131,6 +132,7 @@ DEPENDENCIES
   delayed_job_active_record
   faker
   fast_xs
+  hashie
   hoptoad_notifier (~> 2.3)
   i18n (= 0.6.1)
   memcache-client
@@ -138,9 +140,9 @@ DEPENDENCIES
   mysql2
   nokogiri (~> 1.5.0)
   pry (>= 0.9.12)
+  omniauth (~> 1.1.1)
   rails-api
   rake (~> 0.9.2)
-  omniauth (~> 1.1.1)
   rdoc
   ruby-ldap
   simplecov-rcov
