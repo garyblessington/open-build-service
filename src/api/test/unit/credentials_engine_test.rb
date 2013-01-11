@@ -26,7 +26,7 @@ class CredentialsEngineTest < ActiveSupport::TestCase
     @environment['X-HTTP_AUTHORIZATION'] = "Basic #{Base64.encode64('Joe:MyPassword')}"
     auth_engine = Opensuse::Authentication::CredentialsEngine.new(@configuration, @environment)
 
-    user, message = auth_engine.authenticate
+    message = auth_engine.authenticate.last
 
     assert_equal "Unknown user '#{auth_engine.user_login}' or invalid password", message
   end
