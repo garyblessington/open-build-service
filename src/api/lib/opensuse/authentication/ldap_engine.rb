@@ -37,7 +37,7 @@ module Opensuse
             @ldap_user_info = ldap_info
           rescue LoadError
             loggersend :warn, "ldap_mode selected but 'ruby-ldap' module not installed."
-          rescue Exception => exception
+          rescue Exception
             logger.send :debug, "#{login} not found in LDAP."
           end
 
