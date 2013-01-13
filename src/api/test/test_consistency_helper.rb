@@ -12,6 +12,7 @@ def resubmit_all_fixtures
   prepare_request_with_user "king", "sunflower"
   # projects
   get "/source"
+  puts "RESPONSE IS #{@response.inspect}"
   assert_response :success
   node = ActiveXML::Node.new(@response.body)
   node.each_entry do |e|
@@ -25,7 +26,7 @@ def resubmit_all_fixtures
     assert_response :success
     assert_not_nil r
     assert_equal r, @response.body
-  
+
     # packages
     get "/source/#{e.name}"
     assert_response :success
