@@ -110,6 +110,8 @@ class ApplicationController < ActionController::API
         @user_permissions = Suse::Permission.new( @http_user )
         return true
       end
+
+      puts "HTTP_USER=#{ @http_user.inspect }"
     end
 
     render_error :message => "User is registered but not in confirmed state.", :status => 403,
