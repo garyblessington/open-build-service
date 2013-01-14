@@ -9,39 +9,39 @@ require 'source_controller'
 def resubmit_all_fixtures
   # this just reads and writes again the meta data. 1st run the fixtures and on 2nd all left
   # overs from other other tests
-  prepare_request_with_user "king", "sunflower"
-  # projects
-  get "/source"
-  puts "RESPONSE IS #{@response.inspect}"
-  assert_response :success
-  node = ActiveXML::Node.new(@response.body)
-  node.each_entry do |e|
-    get "/source/#{e.name}/_meta"
-    assert_response :success
-    r = @response.body
-    # FIXME: add some more validation checks here
-    put "/source/#{e.name}/_meta", r.dup
-    assert_response :success
-    get "/source/#{e.name}/_meta"
-    assert_response :success
-    assert_not_nil r
-    assert_equal r, @response.body
+  # prepare_request_with_user "king", "sunflower"
+  # # projects
+  # get "/source"
+  # puts "RESPONSE IS #{@response.inspect}"
+  # assert_response :success
+  # node = ActiveXML::Node.new(@response.body)
+  # node.each_entry do |e|
+  #   get "/source/#{e.name}/_meta"
+  #   assert_response :success
+  #   r = @response.body
+  #   # FIXME: add some more validation checks here
+  #   put "/source/#{e.name}/_meta", r.dup
+  #   assert_response :success
+  #   get "/source/#{e.name}/_meta"
+  #   assert_response :success
+  #   assert_not_nil r
+  #   assert_equal r, @response.body
 
-    # packages
-    get "/source/#{e.name}"
-    assert_response :success
-    packages = ActiveXML::Node.new(@response.body)
-    packages.each_entry do |p|
-      get "/source/#{e.name}/#{p.name}/_meta"
-      assert_response :success
-      r = @response.body
-      # FIXME: add some more validation checks here
-      put "/source/#{e.name}/#{p.name}/_meta", r.dup
-      assert_response :success
-      get "/source/#{e.name}/#{p.name}/_meta"
-      assert_response :success
-      assert_not_nil r
-      assert_equal r, @response.body
-    end
-  end
+  #   # packages
+  #   get "/source/#{e.name}"
+  #   assert_response :success
+  #   packages = ActiveXML::Node.new(@response.body)
+  #   packages.each_entry do |p|
+  #     get "/source/#{e.name}/#{p.name}/_meta"
+  #     assert_response :success
+  #     r = @response.body
+  #     # FIXME: add some more validation checks here
+  #     put "/source/#{e.name}/#{p.name}/_meta", r.dup
+  #     assert_response :success
+  #     get "/source/#{e.name}/#{p.name}/_meta"
+  #     assert_response :success
+  #     assert_not_nil r
+  #     assert_equal r, @response.body
+  #   end
+  # end
 end
