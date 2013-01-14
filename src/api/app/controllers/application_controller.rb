@@ -93,7 +93,12 @@ puts "========= extract_user 1"
     Rails.logger.debug "DEBUG: ENGINE #{auth_engine.engine.inspect}"
 puts "========= extract_user 2"
 
-    return false unless auth_engine.engine
+  unless auth_engine.engine
+    render_error( :message => "Authentication required", :status => 401 )
+puts "========= extract_user 2a"
+    return false
+  end
+
 puts "========= extract_user 3"
 
     @http_user, message = auth_engine.authenticate
