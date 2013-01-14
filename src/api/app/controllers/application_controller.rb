@@ -95,7 +95,6 @@ puts "========= extract_user 2"
 
   unless auth_engine.engine
     render_error( :message => "Authentication required", :status => 401 )
-puts "========= extract_user 2a"
     return false
   end
 
