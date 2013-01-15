@@ -105,7 +105,7 @@ puts "1. HTTP_USER=#{ @http_user.inspect }"
 
     if @http_user.nil?
 puts "1a. HTTP_USER=#{ @http_user.inspect }"
-      render_error( :message => "Unknown user '#{login}' or invalid password", :status => 401 ) and return false
+      render_error( :message => "Unknown user '#{auth_engine.engine.user_login || ''}' or invalid password", :status => 401 ) and return false
     else
       if @http_user.state == User.states['ichainrequest'] or @http_user.state == User.states['unconfirmed']
         render_error :message => "User is registered but not yet approved.", :status => 403,
