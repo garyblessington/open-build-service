@@ -40,7 +40,7 @@ class AuthenticationEngineTest < ActiveSupport::TestCase
     @environment['X-HTTP-Authorization'] = 'Joe'
 
     auth_engine = Opensuse::Authentication::AuthenticationEngine.new(@config, @environment)
-    assert_equal "Opensuse::Authentication::HttpBasicEngine", auth_engine.engine.class.to_s
+    assert_equal "Opensuse::Authentication::CredentialsEngine", auth_engine.engine.class.to_s
   end
 
   def test_http_basic_engine_authorization_header
@@ -49,7 +49,7 @@ class AuthenticationEngineTest < ActiveSupport::TestCase
     @environment['Authorization'] = 'Joe'
 
     auth_engine = Opensuse::Authentication::AuthenticationEngine.new(@config, @environment)
-    assert_equal "Opensuse::Authentication::HttpBasicEngine", auth_engine.engine.class.to_s
+    assert_equal "Opensuse::Authentication::CredentialsEngine", auth_engine.engine.class.to_s
   end
 
   def test_http_basic_engine_http_authorization_header
@@ -58,7 +58,7 @@ class AuthenticationEngineTest < ActiveSupport::TestCase
     @environment['HTTP_AUTHORIZATION'] = 'Joe'
 
     auth_engine = Opensuse::Authentication::AuthenticationEngine.new(@config, @environment)
-    assert_equal "Opensuse::Authentication::HttpBasicEngine", auth_engine.engine.class.to_s
+    assert_equal "Opensuse::Authentication::CredentialsEngine", auth_engine.engine.class.to_s
   end
 
   def test_http_basic_engine_http_non_anonymous
@@ -67,7 +67,7 @@ class AuthenticationEngineTest < ActiveSupport::TestCase
     @environment['HTTP_AUTHORIZATION'] = 'Joe'
 
     auth_engine = Opensuse::Authentication::AuthenticationEngine.new(@config, @environment)
-    assert_not_equal "Opensuse::Authentication::HttpBasicEngine", auth_engine.engine.class.to_s
+    assert_not_equal "Opensuse::Authentication::CredentialsEngine", auth_engine.engine.class.to_s
   end
 
   def test_ldap_engine_x_http_authorization_header_ldap_mode_on
