@@ -87,44 +87,33 @@ class ApplicationController < ActionController::API
   end
 
   def extract_user
-puts "========= extract_user 1"
     auth_engine = Opensuse::Authentication::AuthenticationEngine.new(CONFIG, request.env)
 
     Rails.logger.debug "DEBUG: ENGINE #{auth_engine.engine.inspect}"
-puts "========= extract_user 2"
 
-  unless auth_engine.engine
-    render_error( :message => "Authentication required", :status => 401 )
-    return false
-  end
-
-puts "========= extract_user 3"
+    unless auth_engine.engine
+      render_error( :message => "Authentication required", :status => 401 )
+      return false
+    end
 
     @http_user, message = auth_engine.authenticate
-puts "1. HTTP_USER=#{ @http_user.inspect }"
 
     if @http_user.nil?
-puts "1a. HTTP_USER=#{ @http_user.inspect }"
       render_error( :message => "Unknown user '#{auth_engine.engine.user_login || ''}' or invalid password", :status => 401 ) and return false
     else
       if @http_user.state == User.states['ichainrequest'] or @http_user.state == User.states['unconfirmed']
         render_error :message => "User is registered but not yet approved.", :status => 403,
           :errorcode => "unconfirmed_user",
           :details => "<p>Your account is a registered account, but it is not yet approved for the OBS by admin.</p>"
-puts "2. HTTP_USER=#{ @http_user.inspect }"
         return false
       end
 
       if @http_user.state == User.states['confirmed']
         logger.debug "USER found: #{@http_user.login}"
         @user_permissions = Suse::Permission.new( @http_user )
-puts "3. HTTP_USER=#{ @http_user.inspect }"
         return true
       end
-
-      puts "4. HTTP_USER=#{ @http_user.inspect }"
     end
-puts "5. HTTP_USER=#{ @http_user.inspect }"
     render_error :message => "User is registered but not in confirmed state.", :status => 403,
       :errorcode => "inactive_user",
       :details => "<p>Your account is a registered account, but it is in a not active state.</p>"
