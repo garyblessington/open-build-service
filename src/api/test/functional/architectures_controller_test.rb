@@ -11,21 +11,21 @@ class ArchitecturesControllerTest < ActionController::IntegrationTest
     # Get all issue trackers
     get '/architectures'
     assert_response 401
-    
+
     prepare_request_valid_user
     get '/architectures'
     assert_response :success
-   
+
     assert_xml_tag tag: "entry", attributes: { recommended: "true", available: "false", name: "x86_64" }
     assert_xml_tag tag: "entry", attributes: { recommended: "false", available: "false", name: "ppc" }
- 
+
   end
 
   def test_show
     prepare_request_valid_user
     get "/architectures/i586"
     assert_response :success
-    
+
     assert_xml_tag tag: "architecture", attributes: { name: "i586" }, child: { tag: "available", content: "false" }
 
     get "/architectures/futurearch"
@@ -46,7 +46,7 @@ class ArchitecturesControllerTest < ActionController::IntegrationTest
 
     # temporary disabled to create
     post "/architectures/futurearch", "<architecture><available>true</available></architecture>"
-    assert_response 404 
+    assert_response 404
     assert_xml_tag tag: "status", attributes: { code: "not_found" }
 
   end
