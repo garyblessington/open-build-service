@@ -98,6 +98,11 @@ class ApplicationController < ActionController::API
 
     @http_user, message = auth_engine.authenticate
 
+    if !@http_user.nil? && auth_engine.is_a?(Opensuse::Authentication::AnonymousEngine)
+      @user_permissions = Suse::Permission.new(@http_user)
+      return true
+    end
+
     if @http_user.nil? && auth_engine.is_a?(Opensuse::Authentication::IchainEngine) && auth_engine.user_login
       if CONFIG['new_user_registration'] == "deny"
         logger.debug( "No user found in database, creation disabled" )
