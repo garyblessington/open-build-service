@@ -22,11 +22,11 @@ module Opensuse
             user = User.find_by_login('_nobody_')
           end
         else
-          logger.send :error, "Anonymous configured, but #{read_only_hosts.inspect} does not include '#{environment['REMOTE_HOST']} '#{environment['REMOTE_ADDR']}'}'"
+          logger.send :error, "Anonymous configured, but #{read_only_hosts.join(', ')} does not include '#{environment['REMOTE_HOST']} '#{environment['REMOTE_ADDR']}'}'"
         end
 
         if user.nil?
-          [nil, "Anonymous configured, but #{read_only_hosts.inspect} does not include '#{environment['REMOTE_HOST']} '#{environment['REMOTE_ADDR']}'}'"]
+          [nil, "Anonymous configured, but #{read_only_hosts.join(', ')} does not include '#{environment['REMOTE_HOST']} '#{environment['REMOTE_ADDR']}'}'"]
         else
           user
         end
