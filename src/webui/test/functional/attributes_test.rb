@@ -318,7 +318,7 @@ class AddAttributesTest < ActionDispatch::IntegrationTest
     visit "/"
 
     puts "DEBUG RESPONSE INSTANCE VARIABLE #{@response.inspect}"
-    puts "DEBUG RESPONSE #{reponse.inspect}"
+    puts "DEBUG RESPONSE #{response.inspect}"
     puts "PAGE OBJECT #{page.inspect}"
     puts "PAGE CONTENT #{page.body.inspect}"
 
