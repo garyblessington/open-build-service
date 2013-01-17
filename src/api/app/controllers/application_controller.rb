@@ -286,6 +286,7 @@ class ApplicationController < ActionController::API
       if @http_user.nil?
         render_error( :message => "Unknown user '#{login}' or invalid password", :status => 401 ) and return false
       else
+        render_error("HTTP USER IS #{@http_user.inspect}", :status => 401) and return false
         if @http_user.state == User.states['ichainrequest'] or @http_user.state == User.states['unconfirmed']
           render_error :message => "User is registered but not yet approved.", :status => 403,
             :errorcode => "unconfirmed_user",
