@@ -28,7 +28,7 @@ module Opensuse
           elsif ["X-HTTP-Authorization", "Authorization", "HTTP_AUTHORIZATION"].any? { |header| environment.keys.include?(header) }
             Opensuse::Authentication::CredentialsEngine.new(configuration, environment)
           elsif configuration['allow_anonymous']
-            OpenSuse::Authentication::AnonymousEngine.new(configuration, environment)
+            Opensuse::Authentication::AnonymousEngine.new(configuration, environment)
           end
         end
     end
