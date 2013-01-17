@@ -320,7 +320,7 @@ class AddAttributesTest < ActionDispatch::IntegrationTest
   test "add_all_admin_permited_package_attributes" do
     visit "/"
 
-    puts "RESONSE #{response.inspect}"
+    puts "RESONSE #{last_response.inspect}"
 
     login_king
     visit package_attributes_path(project: "home:Iggy", package: "TestPack")
