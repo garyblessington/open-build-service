@@ -88,7 +88,11 @@ class ApplicationController < ActionController::API
 
   def extract_user
   puts "1. Extract User"
+  begin
     auth_engine = Opensuse::Authentication::AuthenticationEngine.new(CONFIG, request.env)
+  rescue Exception => e
+    puts "EXCEPTION HAPPENED INITIALIZING AUTH ENGINE. Exception is #{e.inspect}"
+  end
   puts "AUTH ENGINE IS #{auth_engine.inspect}"
 
     Rails.logger.debug "DEBUG: ENGINE #{auth_engine.engine.inspect}"
