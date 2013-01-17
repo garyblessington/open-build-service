@@ -210,6 +210,7 @@ class ApplicationController < ActionController::API
           if CONFIG['allow_anonymous']
             @http_user = User.find_by_login( "_nobody_" )
             @user_permissions = Suse::Permission.new( @http_user )
+            render_error(:message => "ICHAIN MODE - RETURNED ANONYMOUS USER")
             return true
           end
           logger.error "No X-username header from login proxy! Are we really using an authentification proxy?"
@@ -234,6 +235,8 @@ class ApplicationController < ActionController::API
         if authorization and authorization[0] == "Basic"
           # logger.debug( "AUTH2: #{authorization}" )
           login, passwd = Base64.decode64(authorization[1]).split(':', 2)[0..1]
+
+          render_error(:message => "AUTHORIZATION IS TRUE #{login.inspect}", :status => 400) and return false
 
           #set password to the empty string in case no password is transmitted in the auth string
           passwd ||= ""
@@ -261,6 +264,8 @@ class ApplicationController < ActionController::API
               return false
             end
           end
+
+          render_error(:message => "HIT NO AUTHENTICATION STRING", :status => 401) and return
 
           logger.debug "no authentication string was sent"
           render_error( :message => "Authentication required", :status => 401 )
