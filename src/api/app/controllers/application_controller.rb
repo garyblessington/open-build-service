@@ -87,13 +87,7 @@ class ApplicationController < ActionController::API
   end
 
   def extract_user
-  puts "1. Extract User"
-  begin
     auth_engine = Opensuse::Authentication::AuthenticationEngine.new(CONFIG, request.env)
-  rescue Exception => e
-    puts "EXCEPTION HAPPENED INITIALIZING AUTH ENGINE. Exception is #{e.inspect}"
-  end
-  puts "AUTH ENGINE IS #{auth_engine.inspect}"
 
     Rails.logger.debug "DEBUG: ENGINE #{auth_engine.engine.inspect}"
 
@@ -101,7 +95,6 @@ class ApplicationController < ActionController::API
       render_error( :message => "Authentication required", :status => 401 )
       return false
     end
-  puts "2. Extract User"
 
     @http_user, message = auth_engine.authenticate
 
