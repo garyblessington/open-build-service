@@ -320,7 +320,11 @@ class AddAttributesTest < ActionDispatch::IntegrationTest
   test "add_all_admin_permited_package_attributes" do
     visit "/"
 
-    puts "RESONSE #{last_response.inspect}"
+    puts "DEBUG RESPONSE INSTANCE VARIABLE #{@response.inspect}"
+    puts "DEBUG RESPONSE #{reponse.inspect}"
+    puts "PAGE OBJECT #{page.inspect}"
+    puts "PAGE CONTENT #{page.body.inspect}"
+
 
     login_king
     visit package_attributes_path(project: "home:Iggy", package: "TestPack")
