@@ -164,6 +164,7 @@ class ApplicationController < ActionController::API
   # end
 
   def extract_user
+    render_error(:message => "CONFIG IS #{CONFIG.inspect} - ENV IS #{request.env.inspect}") and return false
       mode = :basic
       mode = CONFIG['ichain_mode'] if defined? CONFIG['ichain_mode']
       mode = CONFIG['proxy_auth_mode'] if defined? CONFIG['proxy_auth_mode']
