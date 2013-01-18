@@ -87,44 +87,76 @@ class ApplicationController < ActionController::API
   end
 
   def extract_user
-puts "========= extract_user 1"
     auth_engine = Opensuse::Authentication::AuthenticationEngine.new(CONFIG, request.env)
 
     Rails.logger.debug "DEBUG: ENGINE #{auth_engine.engine.inspect}"
-puts "========= extract_user 2"
 
-  unless auth_engine.engine
-    render_error( :message => "Authentication required", :status => 401 )
-    return false
-  end
-
-puts "========= extract_user 3"
+    unless auth_engine.engine
+      render_error( :message => "Authentication required", :status => 401 )
+      return false
+    end
 
     @http_user, message = auth_engine.authenticate
-puts "1. HTTP_USER=#{ @http_user.inspect }"
+
+    if !@http_user.nil? && auth_engine.engine.is_a?(Opensuse::Authentication::AnonymousEngine)
+      @user_permissions = Suse::Permission.new(@http_user)
+      return true
+    end
+
+    if @http_user.nil? && auth_engine.engine.is_a?(Opensuse::Authentication::IchainEngine) && auth_engine.user_login
+      if CONFIG['new_user_registration'] == "deny"
+        logger.debug( "No user found in database, creation disabled" )
+        message = "User 'CONFG' does not exist"
+      end
+      state = User.states['confirmed']
+      state = User.states['unconfirmed'] if CONFIG['new_user_registration'] == "confirmation"
+      # Generate and store a fake pw in the OBS DB that no-one knows
+      # FIXME: we should allow NULL passwords in DB, but that needs user management cleanup
+      fakepw = PasswordGenerator.generate_random_password
+      @http_user = User.create(
+        :login => proxy_user,
+        :password => fakepw,
+        :password_confirmation => fakepw,
+        :state => state
+      )
+
+      @http_user.update_user_info_from_proxy_env(request.env) unless @http_user.nil?
+    end
+
+    if @http_user.nil? && auth_engine.engine.is_a?(Opensuse::Authentication::LdapEngine) && auth_engine.user_login
+      if auth_engine.user_ldap_info.blank?
+        rails.logger.debug("User not found with LDAP, falling back to database")
+        auth_engine = Opensuse::Authentication::CredentialsEngine.new(CONFIG, request.env)
+        @http_user, message = auth_engine.authenticate
+      else
+        if CONFIG['new_user_registration'] == "deny"
+          message = "User '#{auth_engine.user_login}' does not exist"
+        else
+          @http_user = User.create_from_ldap_info(auth_engine.user_login, auth_engine.user_ldap_info)
+
+          if @http_user.blank?
+            message = "Cannot create LDAP userid: '#{auth_engine.user_login}' on OBS"
+          end
+        end
+      end
+    end
 
     if @http_user.nil?
-puts "1a. HTTP_USER=#{ @http_user.inspect }"
-      render_error( :message => "Unknown user '#{login}' or invalid password", :status => 401 ) and return false
+      render_error( :message => message, :status => 401 ) and return false
     else
       if @http_user.state == User.states['ichainrequest'] or @http_user.state == User.states['unconfirmed']
         render_error :message => "User is registered but not yet approved.", :status => 403,
           :errorcode => "unconfirmed_user",
           :details => "<p>Your account is a registered account, but it is not yet approved for the OBS by admin.</p>"
-puts "2. HTTP_USER=#{ @http_user.inspect }"
         return false
       end
 
       if @http_user.state == User.states['confirmed']
         logger.debug "USER found: #{@http_user.login}"
         @user_permissions = Suse::Permission.new( @http_user )
-puts "3. HTTP_USER=#{ @http_user.inspect }"
         return true
       end
-
-      puts "4. HTTP_USER=#{ @http_user.inspect }"
     end
-puts "5. HTTP_USER=#{ @http_user.inspect }"
     render_error :message => "User is registered but not in confirmed state.", :status => 403,
       :errorcode => "inactive_user",
       :details => "<p>Your account is a registered account, but it is in a not active state.</p>"

@@ -1,7 +1,7 @@
-require File.expand_path(File.dirname(__FILE__) + "/..") + "/test_helper"        
+require File.expand_path(File.dirname(__FILE__) + "/..") + "/test_helper"
 
 class AddAttributesTest < ActionDispatch::IntegrationTest
-  
+
   ATTRIBUTES = [ "NSTEST:status",
                  "OBS:VeryImportantProject",
                  "OBS:UpdateProject",
@@ -17,11 +17,11 @@ class AddAttributesTest < ActionDispatch::IntegrationTest
                  "OBS:ScreenShots",
                  "OBS:ProjectStatusPackageFailComment",
                  "OBS:QualityCategory" ].sort
-  
+
   def edit_attribute attribute
     attribute[:expect] ||= :success
     assert ATTRIBUTES.include? attribute[:name]
-    
+
     attributes_table = @driver[css: "div#content table"]
     rows = attributes_table.find_elements xpath: ".//tr"
     rows.delete_at 0    # removing first row as it contains the headers
@@ -29,12 +29,12 @@ class AddAttributesTest < ActionDispatch::IntegrationTest
       row.find_element(xpath: ".//td[1]").text == attribute[:name]
     end
     results.count.must_equal 1
-    
+
     results.first.find_element(xpath: ".//a[1]").click
 
     validate { @driver.page_source.include? "Edit Attribute #{attribute[:name]}" }
     validate { @driver.page_source.include? 'Values (e.g. "bar,foo,..."):' }
-    
+
     @driver[:id => "values"].clear
     @driver[:id => "values"].send_keys attribute[:new_value]
     @driver[css: "div#content input[name='commit']"].click
@@ -50,8 +50,8 @@ class AddAttributesTest < ActionDispatch::IntegrationTest
                                         "Saving attribute failed: attribute value #{attribute[:new_value]} for") }
       validate { flash_message_type == :alert }
     elsif attribute[:expect] == :wrong_number_of_values
-      assert flash_message.include? "Saving attribute failed: attribute" 
-      assert flash_message.include? "values, but" 
+      assert flash_message.include? "Saving attribute failed: attribute"
+      assert flash_message.include? "values, but"
       flash_message_type.must_equal :alert
     end
     validate_page
@@ -68,7 +68,7 @@ class AddAttributesTest < ActionDispatch::IntegrationTest
     page.must_have_text 'Add New Attribute'
     page.must_have_text 'Attribute name:'
     page.must_have_text 'Values (e.g. "bar,foo,..."):'
-    
+
     find('select#attribute').select(attribute[:name])
     fill_in 'values', with: attribute[:value]
     click_button 'Save attribute'
@@ -89,7 +89,7 @@ class AddAttributesTest < ActionDispatch::IntegrationTest
   def delete_attribute attribute
     attribute[:expect] ||= :success
     assert ATTRIBUTES.include? attribute[:name]
-    
+
     results = all("tr.attribute-values").select do |row|
       row.find(:css, "td.attribute-name").text == attribute[:name]
     end
@@ -121,7 +121,7 @@ class AddAttributesTest < ActionDispatch::IntegrationTest
     add_new_attribute(name:  "OBS:InitializeDevelPackage")
     add_new_attribute(name:  "OBS:QualityCategory",
                       value:  "Stable")
-    
+
     logout
     # admin should be able to delete all
     login_king
@@ -134,7 +134,7 @@ class AddAttributesTest < ActionDispatch::IntegrationTest
 
 
   test "add_all_permited_project_attributes_for_second_user" do
-    
+
     login_tom
     visit project_attributes_path(project: "home:tom")
     add_new_attribute(name:  "OBS:RequestCloned",
@@ -166,7 +166,7 @@ class AddAttributesTest < ActionDispatch::IntegrationTest
 
 
   test "wrong_number_of_values_for_project_attribute" do
-    
+
     login_Iggy
     visit project_attributes_path(project: "home:Iggy")
     add_new_attribute(name:  "OBS:ProjectStatusPackageFailComment",
@@ -176,7 +176,7 @@ class AddAttributesTest < ActionDispatch::IntegrationTest
 
 
   test "add_same_project_attribute_twice" do
-    
+
     login_Iggy
     visit project_attributes_path(project: "home:Iggy")
     add_new_attribute(name:  "OBS:RequestCloned",
@@ -187,7 +187,7 @@ class AddAttributesTest < ActionDispatch::IntegrationTest
 
 
   test "add_all_admin_permited_project_attributes" do
-    
+
     login_king
     visit project_attributes_path(project: "home:Iggy")
 
@@ -197,13 +197,13 @@ class AddAttributesTest < ActionDispatch::IntegrationTest
     add_new_attribute(name:  "OBS:UpdateProject",
                       value:  "now")
     add_new_attribute(name:  "OBS:RejectRequests",
-                      value:  "yes")   
-    add_new_attribute(name:  "OBS:ApprovedRequestSource")   
-    add_new_attribute(name:  "OBS:Maintained")   
+                      value:  "yes")
+    add_new_attribute(name:  "OBS:ApprovedRequestSource")
+    add_new_attribute(name:  "OBS:Maintained")
     add_new_attribute(name:  "OBS:MaintenanceProject",
-                      value:  "")   
+                      value:  "")
     add_new_attribute(name:  "OBS:MaintenanceIdTemplate",
-                      value:  "dontbesilly")   
+                      value:  "dontbesilly")
     add_new_attribute(name:  "OBS:ScreenShots",
                       value:  "scarystuff")
     add_new_attribute(name:  "OBS:RequestCloned",
@@ -264,30 +264,30 @@ class AddAttributesTest < ActionDispatch::IntegrationTest
                       expect:  :no_permission)
     add_new_attribute(name:  "OBS:UpdateProject",
                       value:  "",
-                      expect:  :no_permission)  
+                      expect:  :no_permission)
     add_new_attribute(name:  "OBS:RejectRequests",
                       value:  "",
-                      expect:  :wrong_number_of_values)   
+                      expect:  :wrong_number_of_values)
     add_new_attribute(name:  "OBS:ApprovedRequestSource",
                       value:  "",
                       expect:  :success)
     add_new_attribute(name:  "OBS:Maintained",
                       value:  "",
-                      expect:  :success)   
+                      expect:  :success)
     add_new_attribute(name:  "OBS:MaintenanceProject",
                       value:  "",
                       expect:  :no_permissions)
     add_new_attribute(name:  "OBS:MaintenanceIdTemplate",
                       value:  "",
-                      expect:  :no_permission)   
+                      expect:  :no_permission)
     add_new_attribute(name:  "OBS:ScreenShots",
                       value:  "",
-                      expect:  :no_permission)     
+                      expect:  :no_permission)
   end
 
 
   test "add_invalid_value_for_package_attribute" do
-    
+
     login_Iggy
     visit package_attributes_path(project: "home:Iggy", package: "TestPack")
     add_new_attribute(name:  "OBS:QualityCategory",
@@ -298,7 +298,7 @@ class AddAttributesTest < ActionDispatch::IntegrationTest
 
   test "wrong_number_of_values_for_package_attribute" do
 
-    login_Iggy    
+    login_Iggy
     visit package_attributes_path(project: "home:Iggy", package: "TestPack")
     add_new_attribute(name:  "OBS:ProjectStatusPackageFailComment",
                       value:  "val1,val2,val3",
@@ -307,7 +307,7 @@ class AddAttributesTest < ActionDispatch::IntegrationTest
 
 
   test "add_same_package_attribute_twice" do
-    
+
     login_Iggy
     visit package_attributes_path(project: "home:Iggy", package: "TestPack")
     add_new_attribute(name:  "OBS:RequestCloned",
@@ -318,7 +318,14 @@ class AddAttributesTest < ActionDispatch::IntegrationTest
 
 
   test "add_all_admin_permited_package_attributes" do
-    
+    visit "/"
+
+    puts "DEBUG RESPONSE INSTANCE VARIABLE #{@response.inspect}"
+    puts "DEBUG RESPONSE #{response.inspect}"
+    puts "PAGE OBJECT #{page.inspect}"
+    puts "PAGE CONTENT #{page.body.inspect}"
+
+
     login_king
     visit package_attributes_path(project: "home:Iggy", package: "TestPack")
 
@@ -326,13 +333,13 @@ class AddAttributesTest < ActionDispatch::IntegrationTest
     add_new_attribute(name:  "OBS:UpdateProject",
                       value:  "now")
     add_new_attribute(name:  "OBS:RejectRequests",
-                      value:  "yes")   
-    add_new_attribute(name:  "OBS:ApprovedRequestSource")   
-    add_new_attribute(name:  "OBS:Maintained")   
+                      value:  "yes")
+    add_new_attribute(name:  "OBS:ApprovedRequestSource")
+    add_new_attribute(name:  "OBS:Maintained")
     add_new_attribute(name:  "OBS:MaintenanceProject",
-                      value:  "")   
+                      value:  "")
     add_new_attribute(name:  "OBS:MaintenanceIdTemplate",
-                      value:  "dontbesilly")   
+                      value:  "dontbesilly")
     add_new_attribute(name:  "OBS:ScreenShots",
                       value:  "scarystuff")
     add_new_attribute(name:  "OBS:RequestCloned",
@@ -340,11 +347,11 @@ class AddAttributesTest < ActionDispatch::IntegrationTest
     add_new_attribute(name:  "OBS:ProjectStatusPackageFailComment",
                       value:  "some_value_comment")
     add_new_attribute(name:  "OBS:InitializeDevelPackage")
-    
+
     logout
     login_Iggy
     visit package_attributes_path(project: "home:Iggy", package: "TestPack")
-    
+
     delete_attribute(name:  "OBS:VeryImportantProject",
                      expect:  :no_permission)
     delete_attribute(name:  "OBS:UpdateProject",
