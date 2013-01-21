@@ -292,7 +292,6 @@ CREATE TABLE `groups` (
   `ldap_group_member_of_validation` tinyint(1) DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `groups_parent_id_index` (`parent_id`),
-
   KEY `index_groups_on_title` (`title`),
   KEY `index_groups_on_ldap_group_member_of_validation` (`ldap_group_member_of_validation`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
