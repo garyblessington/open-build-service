@@ -292,12 +292,9 @@ CREATE TABLE `groups` (
   `ldap_group_member_of_validation` tinyint(1) DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `groups_parent_id_index` (`parent_id`),
-<<<<<<< HEAD
-  KEY `index_groups_on_title` (`title`)
-=======
+
   KEY `index_groups_on_title` (`title`),
   KEY `index_groups_on_ldap_group_member_of_validation` (`ldap_group_member_of_validation`)
->>>>>>> 2db66d5... [api] Added a column to Group to allow per group memberOf permission checking against an LDAP server. Fixed group_controller update_from_xml so that it will correctly work with existing group members.
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 CREATE TABLE `groups_roles` (
