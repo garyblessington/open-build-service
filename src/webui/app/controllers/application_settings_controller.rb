@@ -26,7 +26,7 @@ class ApplicationSettingsController < ApplicationController
     data << "</hash>"
 
     begin
-      response = ActiveXML::transport.direct_http(URI('/application_settings/update_application_settings'), :method => 'PUT', :data => data)
+      ActiveXML::transport.direct_http(URI('/application_settings/update_application_settings'), :method => 'PUT', :data => data)
       flash[:success] = "Configuration options were successfully saved."
       redirect_to :controller => 'configuration'
 
