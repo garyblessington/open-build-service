@@ -23,7 +23,7 @@
             <%= link_to_if(@user, member.userid, :controller => 'home', :action => 'index', :user => member.userid) %>,
           <% end %>
           </td>
-          <% if @user.is_admin? %>
+          <% if @user && @user.is_admin? %>
             <td>
               <%= link_to('Edit', :action => 'edit', :id => group.value('title')) %>
             </td>
