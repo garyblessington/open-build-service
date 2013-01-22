@@ -9,7 +9,7 @@
       <tr>
         <th>Group name</th>
         <th>Members</th>
-        <% if @user.is_admin? %>
+        <% if @user && @user.is_admin? %>
           <th></th>
         <% end %>
       </tr>
