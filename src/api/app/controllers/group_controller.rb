@@ -30,7 +30,7 @@ class GroupController < ApplicationController
   def refresh_cached_groups
     if params[:login]
       user = User.find_by_login!(params[:login])
-      list = user.accessible_groups(:refresh_cache => true)
+      user.accessible_groups(:refresh_cache => true)
     end
     render_ok
   end
