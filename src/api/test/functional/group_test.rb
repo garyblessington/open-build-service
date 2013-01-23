@@ -144,7 +144,6 @@ class GroupControllerTest < ActionController::IntegrationTest
     assert_response :success
     assert_xml_tag :tag => 'directory', :child => {:tag => 'entry'}
     assert_xml_tag :tag => 'entry', :attributes => {:name => 'test_group'}
-    assert_no_xml_tag :tag => 'entry', :attributes => {:name => 'test_group_b'}
   end
 
 end
