@@ -23,7 +23,7 @@ class UserController < ApplicationController
   def login
     @return_to_path = params['return_to_path'] || "/"
   end
-
+  
   def edit
   end
 
@@ -47,9 +47,6 @@ class UserController < ApplicationController
         flash.now[:error] = "Authentication failed"
         render :template => "user/login", :locals => {:return_to_path => @return_to_path} and return
       end
-
-      p.refresh_cached_groups!
-
       flash[:success] = "You are logged in now"
       redirect_to params[:return_to_path] and return
     end
@@ -128,13 +125,13 @@ class UserController < ApplicationController
   end
 
   def change_password
-    # check the valid of the params
+    # check the valid of the params  
     if not params[:current_password] == session[:password]
       errmsg = "The value of current password does not match your current password. Please enter the password and try again."
     end
     if not params[:new_password] == params[:password_confirmation]
       errmsg = "The new passwords do not match. Please enter the password and try again."
-    end
+    end    
     if params[:current_password] == params[:new_password]
       errmsg = "The new password is the same as your current password. Please enter the new password again."
     end
@@ -164,7 +161,7 @@ class UserController < ApplicationController
     end
 
     redirect_to :controller => :user, :action => :change_my_password
-  end
+  end 
 
   def autocomplete
     required_parameters :term
