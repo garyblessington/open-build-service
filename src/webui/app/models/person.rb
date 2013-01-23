@@ -119,15 +119,6 @@ class Person < ActiveXML::Node
     Collection.free_cache(:id, :what => 'package', :predicate => predicate)
   end
 
-  def refresh_cached_groups!
-    # Force a re-caching of this user's groups in the API (User.accessible_groups)
-    transport ||= ActiveXML::transport
-    transport.direct_http URI("/group/refresh_cached_groups?login=#{ login }"), :method => "PUT"
-
-    # Delete cached groups content for groups index page
-    Rails.cache.delete_matched("group_list_#{ login }")
-  end
-
   def involved_projects
     predicate = "person/@userid='#{login}'"
     groups.each {|group| predicate += " or group/@groupid='#{group}'"}
