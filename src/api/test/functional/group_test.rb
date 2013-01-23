@@ -113,6 +113,7 @@ class GroupControllerTest < ActionController::IntegrationTest
     prepare_request_valid_user
     get "/group/not_existing_group"
     assert_response 404
+
     get "/group/test_group"
     assert_response :success
     assert_xml_tag :tag => 'group', :child => {:tag => 'title'}, :content => "test_group"
