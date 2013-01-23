@@ -413,19 +413,24 @@ class User < ActiveRecord::Base
   end
 
   def accessible_groups(opts = {})
-    # Returns a list of the groups that a user can access
-    opts[:refresh_cache] ||= false
-    cache_key = "user_#{ self.id }_groups"
-    if opts[:refresh_cache] == false && group_ids = Rails.cache.fetch(cache_key)
-      groups = Group.where('id IN (?)', group_ids)
-    else
-      groups = Group.all
-      if Suse::Ldap.group_member_of_validation?
-        ldap_groups = User.render_grouplist_ldap(groups.map(&:title), self.login)
-        logger.debug "User #{ self.login } has access to the following groups: #{ ldap_groups.inspect }"
-        groups.reject! { |group| !ldap_groups.include?(group.title) }
+    begin
+      # Returns a list of the groups that a user can access
+      opts[:refresh_cache] ||= false
+      cache_key = "user_#{ self.id }_groups"
+      if opts[:refresh_cache] == false && group_ids = Rails.cache.fetch(cache_key)
+        groups = Group.where('id IN (?)', group_ids)
+      else
+        groups = Group.all
+        if Suse::Ldap.group_member_of_validation?
+          ldap_groups = User.render_grouplist_ldap(groups.map(&:title), self.login)
+          logger.debug "User #{ self.login } has access to the following groups: #{ ldap_groups.inspect }"
+          groups.reject! { |group| !ldap_groups.include?(group.title) }
+        end
+        Rails.cache.write(cache_key, groups.map(&:id), :expires_in => 8.hours)
       end
-      Rails.cache.write(cache_key, groups.map(&:id), :expires_in => 8.hours)
+    rescue Exception => e
+      puts e.inspect
+      puts e.backtrace
     end
     groups
   end
