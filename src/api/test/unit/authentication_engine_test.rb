@@ -62,7 +62,6 @@ class AuthenticationEngineTest < ActiveSupport::TestCase
 
     auth_engine = Opensuse::Authentication::AuthenticationEngine.new(@config, @environment)
     assert_equal "Opensuse::Authentication::LdapEngine", auth_engine.engine.class.to_s
-
   end
 
   def test_ldap_engine_authorization_header_ldap_mode_on
