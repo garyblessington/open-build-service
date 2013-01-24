@@ -24,7 +24,7 @@ module Opensuse
           # elsif ["X-HTTP-Authorization", "Authorization", "HTTP_AUTHORIZATION"].any? { |header| environment.keys.include?(header) } && configuration['allow_anonymous']
           #   Opensuse::Authentication::HttpBasicEngine.new(configuration, environment)
           #elsif ["X-HTTP-Authorization", "Authorization", "HTTP_AUTHORIZATION"].any? { |header| environment.keys.include?(header) } && configuration['ldap_mode'] == :on
-          elsif ["X-HTTP-Authorization", "Authorization", "HTTP_AUTHORIZATION"].any? { |header| environment.keys.include?(header) } && ApplicationSettings::LdapMode.get_value == true
+          elsif ["X-HTTP-Authorization", "Authorization", "HTTP_AUTHORIZATION"].any? { |header| environment.keys.include?(header) } && ApplicationSettings::LdapMode.get.value == true
             Opensuse::Authentication::LdapEngine.new(configuration, environment)
           elsif ["X-HTTP-Authorization", "Authorization", "HTTP_AUTHORIZATION"].any? { |header| environment.keys.include?(header) }
             Opensuse::Authentication::CredentialsEngine.new(configuration, environment)
