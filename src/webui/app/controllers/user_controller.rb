@@ -48,7 +48,7 @@ class UserController < ApplicationController
         render :template => "user/login", :locals => {:return_to_path => @return_to_path} and return
       end
 
-      p.refresh_cached_groups! unless p.nil?
+      p.refresh_cached_groups!
 
       flash[:success] = "You are logged in now"
       redirect_to params[:return_to_path] and return

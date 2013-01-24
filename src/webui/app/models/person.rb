@@ -5,7 +5,7 @@ class Person < ActiveXML::Node
   default_find_parameter :login
 
   handles_xml_element 'person'
-  
+
   def self.find_cached(login, opts = {})
     if opts.has_key?(:is_current)
       # skip memcache
@@ -86,6 +86,20 @@ class Person < ActiveXML::Node
     Collection.free_cache(:id, :what => 'package', :predicate => predicate)
   end
 
+  def refresh_cached_groups!
+    begin
+      # Force a re-caching of this user's groups in the API (User.accessible_groups)
+      transport ||= ActiveXML::transport
+      transport.direct_http URI("/group/refresh_cached_groups?login=#{ login }"), :method => "PUT"
+
+      # Delete cached groups content for groups index page
+      Rails.cache.delete_matched("group_list_#{ login }")
+    rescue
+      # This is used during login, and if it results in failure we do not want it
+      # to prevent logins
+    end
+  end
+
   def involved_projects
     predicate = "person/@userid='#{login}'"
     groups.each {|group| predicate += " or group/@groupid='#{group}'"}
@@ -104,7 +118,7 @@ class Person < ActiveXML::Node
     col.each_package do |pi|
       hash = { :package => { :project => pi.project, :name => pi.name } }
       issues = Array.new
-      
+
       begin
         # get users open issues for package
         path = "/source/#{URI.escape(pi.project)}/#{URI.escape(pi.name)}?view=issues&states=OPEN&login=#{CGI.escape(login)}"
@@ -131,7 +145,7 @@ class Person < ActiveXML::Node
           end
           issues << i
         end
-        
+
         hash[:issues] = issues
         array << hash
       rescue ActiveXML::Transport::NotFoundError
@@ -164,7 +178,7 @@ class Person < ActiveXML::Node
   end
 
   def is_admin?
-    to_hash.elements("globalrole").each do |g|  
+    to_hash.elements("globalrole").each do |g|
       return true if g == 'Admin'
     end
     return false
