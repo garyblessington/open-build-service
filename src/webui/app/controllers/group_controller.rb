@@ -9,9 +9,15 @@ class GroupController < ApplicationController
 
   def index
     @groups = []
-    Group.find_cached(:all).each do |entry|
-      group = Group.find_cached(entry.value('name'))
-      @groups << group if group
+
+    # Group.find_cached(:all).each do |entry|
+    #   group = Group.find_cached(entry.value('name'))
+    #   @groups << group if group
+    # end
+
+    group_names = Group.list(nil, :login => session[:login])
+    group_names.each do |group_name|
+      @groups << Group.find_cached(group_name)
     end
   end
 
