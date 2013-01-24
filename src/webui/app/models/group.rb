@@ -24,9 +24,9 @@ class Group < ActiveXML::Node
 
   def self.list(prefix=nil, hash=nil)
     prefix = URI.encode(prefix)
-    group_list = Rails.cache.fetch("group_list_#{prefix.to_s}", :expires_in => 10.minutes) do
+    group_list = Rails.cache.fetch("group_list_#{ opts[:login] }_#{prefix.to_s}", :expires_in => 10.minutes) do
       transport ||= ActiveXML::transport
-      path = "/group?prefix=#{prefix}"
+      path = "/group?prefix=#{ prefix }&login=#{ opts[:login] }"
       begin
         logger.debug "Fetching group list from API"
         response = transport.direct_http URI("#{path}"), :method => "GET"
