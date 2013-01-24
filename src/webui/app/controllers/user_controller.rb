@@ -46,6 +46,9 @@ class UserController < ApplicationController
         flash.now[:error] = "Authentication failed"
         render :template => "user/login", :locals => {:return_to_path => @return_to_path} and return
       end
+
+      p.refresh_cached_groups! unless p.nil?
+
       flash[:success] = "You are logged in now"
       redirect_to params[:return_to_path] and return
     end
