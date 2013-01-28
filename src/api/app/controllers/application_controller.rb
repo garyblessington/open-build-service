@@ -190,7 +190,7 @@ class ApplicationController < ActionController::API
     #     return false
     #   end
 
-    #   if OpenSuse::Ldap.enabled?
+    #   if Suse::Ldap.enabled?
     #     # disallow empty passwords to prevent LDAP lockouts
     #     if !passwd or passwd == ""
     #       render_error( :message => "User '#{login}' did not provide a password", :status => 401 ) and return false

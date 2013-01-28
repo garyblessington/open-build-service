@@ -509,8 +509,8 @@ class Package < ActiveRecord::Base
       else
         unless group
           # check with LDAP
-          if OpenSuse::Ldap.enabled?
-            if OpenSuse::Ldap.group_support?
+          if Suse::Ldap.enabled?
+            if Suse::Ldap.group_support?
               if User.find_group_with_ldap(ge['groupid'])
                 logger.debug "Find and Create group '#{ge['groupid']}' from LDAP"
                 newgroup = Group.create( :title => ge['groupid'] )

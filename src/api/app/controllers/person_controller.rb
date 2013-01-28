@@ -150,7 +150,7 @@ class PersonController < ApplicationController
   end
 
   def internal_register
-    if OpenSuse::Ldap.enabled?
+    if Suse::Ldap.enabled?
       render_error :message => "LDAP mode enabled, users can only be registered via LDAP", :errorcode => "err_register_save", :status => 400
       return
     end
@@ -297,22 +297,22 @@ class PersonController < ApplicationController
     end
 
     #change password to LDAP if LDAP is enabled
-    if OpenSuse::Ldap.enabled?
+    if Suse::Ldap.enabled?
       ldap_password = Base64.decode64(password)
-      if OpenSuse::Ldap.ssl?
+      if Suse::Ldap.ssl?
         require 'base64'
         begin
           logger.debug( "Using LDAP to change password for #{login}" )
           result = User.change_password_ldap(login, ldap_password)
         rescue Exception
-          logger.debug "OpenSuse::Ldap.enabled? selected but 'ruby-ldap' module not installed."
+          logger.debug "Suse::Ldap.enabled? selected but 'ruby-ldap' module not installed."
         end
         if result
           render_error :status => 404, :errorcode => 'change_passwd_failure', :message => "Failed to change password to ldap: #{result}"
           return
         end
       else
-        render_error :status => 404, :errorcode => 'change_passwd_no_security', :message => "LDAP mode enabled, the user password can only be changed with OpenSuse::Ldap.ssl? enabling."
+        render_error :status => 404, :errorcode => 'change_passwd_no_security', :message => "LDAP mode enabled, the user password can only be changed with Suse::Ldap.ssl? enabling."
         return
       end
     end
