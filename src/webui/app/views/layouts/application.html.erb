@@ -29,6 +29,7 @@
         <% end %>
       });
     <% end %>
+    <%= javascript_tag '$.fx.off = true;' if Rails.env.test? %>
 
     <%= auto_discovery_link_tag(:rss, {:controller => 'main', :action => 'news', :format => 'rss'}, {:title => 'News'}) %>
     <% unless CONFIG['feeds'].nil? or CONFIG['feeds'].length < 1 %>
