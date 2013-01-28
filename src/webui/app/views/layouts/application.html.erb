@@ -29,6 +29,7 @@
         <% end %>
       });
     <% end %>
+    <%= javascript_tag '$.fx.off = true;' if Rails.env.test? %>
 
     <%= csrf_meta_tag %>
   </head>
