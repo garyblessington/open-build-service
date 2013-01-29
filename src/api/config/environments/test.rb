@@ -30,8 +30,8 @@ end
 
 # Look for a YAML file with test details that will allow people to run tests with different configurations
 # for their OBS server backend
-if source_file = File.open("#{ Rails.root }/config/source.yml")
-  source_config = YAML.load(source_file)
+if File.exist?("#{ Rails.root }/config/source.yml")
+  source_config = YAML.load("#{ Rails.root }/config/source.yml")
   CONFIG['source_host'] = source_config["source_host"]
   CONFIG['source_port'] = source_config["source_port"]
 else
