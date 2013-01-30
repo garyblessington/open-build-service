@@ -11,6 +11,9 @@ require 'webmock/minitest'
 
 WebMock.disable_net_connect!(allow: CONFIG['source_host'])
 
+CONFIG['allow_anonymous'] = true
+CONFIG['read_only_hosts'] = ['127.0.0.1', '::1']
+
 # uncomment to enable tests which currently are known to fail, but where either the test
 # or the code has to be fixed
 #$ENABLE_BROKEN_TEST=true
@@ -76,12 +79,12 @@ module ActionController
   end
 
   class IntegrationTest
- 
+
     def teardown
       Rails.cache.clear
       reset_auth
     end
-    
+
     @@auth = nil
 
     def reset_auth
@@ -100,12 +103,12 @@ module ActionController
       re = 'Basic ' + Base64.encode64( user + ':' + passwd )
       @@auth = re
     end
-  
+
     # will provide a user without special permissions
-    def prepare_request_valid_user 
+    def prepare_request_valid_user
       prepare_request_with_user 'tom', 'thunder'
     end
-  
+
     def prepare_request_invalid_user
       prepare_request_with_user 'tom123', 'thunder123'
     end
@@ -171,7 +174,7 @@ module ActionController
       end
     end
 
-  end 
+  end
 end
 
 class ActiveSupport::TestCase
