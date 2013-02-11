@@ -28,6 +28,17 @@ class ApplicationSetting < ActiveRecord::Base
     # For now, this has to be handled manually. There is no easy way to get all the subclasses of ApplicationSetting and their values
     # due to how Ruby lazy loads classes.
     application_settings = {
+      :AuthIchainMode => ApplicationSettings::AuthIchainMode.get.value,
+      :AuthProxyMode => ApplicationSettings::AuthProxyMode.get.value,
+      :AuthProxyUser => ApplicationSettings::AuthProxyUser.get.value,
+      :AuthCrowdMode => ApplicationSettings::AuthCrowdMode.get.value,
+      :AuthCrowdServer => ApplicationSettings::AuthCrowdServer.get.value,
+      :AuthCrowdAppName => ApplicationSettings::AuthCrowdAppName.get.value,
+      :AuthCrowdAppPassword => ApplicationSettings::AuthCrowdAppPassword.get.value,
+      :AuthAllowAnonymous => ApplicationSettings::AuthAllowAnonymous.get.value,
+      :AuthReadOnlyHosts => ApplicationSettings::AuthReadOnlyHosts.get.value,
+      :AuthWebuiHost => ApplicationSettings::AuthWebuiHost.get.value,
+      :LdapMode => ApplicationSettings::LdapMode.get.value,
       :LdapServers => ApplicationSettings::LdapServers.get.value,
       :LdapPort => ApplicationSettings::LdapPort.get.value,
       :LdapMaximumAttempts => ApplicationSettings::LdapMaximumAttempts.get.value,
@@ -55,7 +66,7 @@ class ApplicationSetting < ActiveRecord::Base
       :LdapObjectClass => ApplicationSettings::LdapObjectClass.get.value,
       :LdapSnAttributeRequired => ApplicationSettings::LdapSnAttributeRequired.get.value,
       :LdapUpdateSupport => ApplicationSettings::LdapUpdateSupport.get.value,
-      :LdapUserNameAttribute => ApplicationSettings::LdapUserNameAttribute.get.value,
+      :LdapUserNameAttribute => ApplicationSettings::LdapUserNameAttribute.get.value
       }
     application_settings.to_xml
   end
