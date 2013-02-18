@@ -35,9 +35,6 @@ CONFIG['download_url'] = 'http://example.com/download'
 
 CONFIG['response_schema_validation'] = true
 
-CONFIG['allow_anonymous'] = true
-CONFIG['read_only_hosts'] = ['127.0.0.1', '::1']
-
 # the default is not to write through, only once the backend started
 # we set this to true
 CONFIG['global_write_through'] = false
