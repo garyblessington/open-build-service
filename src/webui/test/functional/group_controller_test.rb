@@ -1,4 +1,4 @@
-require File.expand_path(File.dirname(__FILE__) + "/..") + "/test_helper"        
+require File.expand_path(File.dirname(__FILE__) + "/..") + "/test_helper"
 
 class GroupControllerTest < ActionDispatch::IntegrationTest
 
@@ -16,5 +16,4 @@ class GroupControllerTest < ActionDispatch::IntegrationTest
     find(:id, 'adrian').click
     assert page.current_url.end_with? home_path(user: 'adrian')
   end
-
 end
