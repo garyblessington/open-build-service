@@ -7,7 +7,7 @@ class AuthenticationEngineTest < ActiveSupport::TestCase
   end
 
   def test_ichain_engine_set_to_on
-    @config['ichain_mode'] = :on
+    #@config['ichain_mode'] = :on
     ApplicationSettings::AuthIchainMode.set!('on')
 
     auth_engine = Opensuse::Authentication::AuthenticationEngine.new(@config, @environment)
@@ -15,7 +15,7 @@ class AuthenticationEngineTest < ActiveSupport::TestCase
   end
 
   def test_ichain_engine_set_to_simulate
-    @config['ichain_mode'] = :simulate
+    #@config['ichain_mode'] = :simulate
     ApplicationSettings::AuthIchainMode.set!('simulate')
 
     auth_engine = Opensuse::Authentication::AuthenticationEngine.new(@config, @environment)
@@ -23,7 +23,7 @@ class AuthenticationEngineTest < ActiveSupport::TestCase
   end
 
   def test_ichain_engine_set_to_off
-    @config['ichain_mode'] = :off
+    #@config['ichain_mode'] = :off
     ApplicationSettings::AuthIchainMode.set!('off')
 
     auth_engine = Opensuse::Authentication::AuthenticationEngine.new(@config, @environment)
@@ -31,7 +31,7 @@ class AuthenticationEngineTest < ActiveSupport::TestCase
   end
 
   def test_ichain_engine_set_to_nothing
-    @config['ichain_mode'] = ''
+    #@config['ichain_mode'] = ''
     ApplicationSettings::AuthIchainMode.set!('')
 
     auth_engine = Opensuse::Authentication::AuthenticationEngine.new(@config, @environment)
