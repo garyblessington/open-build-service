@@ -160,7 +160,7 @@ class PersonController < ApplicationController
       render_error :message => "LDAP mode enabled, users can only be registered via LDAP", :errorcode => "err_register_save", :status => 400
       return
     end
-    if CONFIG['proxy_auth_mode'] == :on or CONFIG['ichain_mode'] == :on
+    if CONFIG['proxy_auth_mode'] == :on or ApplicationSettings::AuthIchainMode.get.value == 'on'
       render_error :message => "Proxy authentification mode, manual registration is disabled", :errorcode => "err_register_save", :status => 400
       return
     end
