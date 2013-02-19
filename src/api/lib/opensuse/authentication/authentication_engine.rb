@@ -19,7 +19,7 @@ module Opensuse
 
       private
         def determine_engine
-          if [:on, :simulate].include?([configuration['ichain_mode'], configuration['proxy_auth_mode']].compact.uniq.last)
+          if [:on, :simulate].include?([ApplicationSettings::AuthIchainMode.get.value, configuration['proxy_auth_mode']].compact.uniq.last)
             Opensuse::Authentication::IchainEngine.new(configuration, environment)
           # elsif ["X-HTTP-Authorization", "Authorization", "HTTP_AUTHORIZATION"].any? { |header| environment.keys.include?(header) } && configuration['allow_anonymous']
           #   Opensuse::Authentication::HttpBasicEngine.new(configuration, environment)

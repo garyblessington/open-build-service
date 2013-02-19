@@ -12,7 +12,7 @@ module Opensuse
       end
 
       def authenticate
-        mode = [configuration['ichain_mode'], configuration['proxy_auth_mode']].compact.uniq.last
+        mode = [ApplicationSettings::AuthIchainMode.get.value, configuration['proxy_auth_mode']].compact.uniq.last
         proxy_user = environment['HTTP_X_USERNAME']
 
         if proxy_user
