@@ -19,11 +19,11 @@ module Opensuse
 
       private
         def determine_engine
-          if [:on, :simulate, 'on', 'simulate'].include?([ApplicationSettings::AuthIchainMode.get.value, configuration['proxy_auth_mode']].compact.uniq.last)
+          if ApplicationSettings::AuthCrowdMode.get.value && ApplicationSettings::AuthCrowdServer.get.value && ApplicationSettings::AuthCrowdAppName.get.value && ApplicationSettings::AuthCrowdAppPassword.get.value &&
+            environment_contains_valid_headers?
+            Opensuse::Authentication::CrowdEngine.new(configuration, environment)
+          elsif [:on, :simulate, 'on', 'simulate'].include?([ApplicationSettings::AuthIchainMode.get.value, configuration['proxy_auth_mode']].compact.uniq.last)
             Opensuse::Authentication::IchainEngine.new(configuration, environment)
-          # elsif ["X-HTTP-Authorization", "Authorization", "HTTP_AUTHORIZATION"].any? { |header| environment.keys.include?(header) } && configuration['allow_anonymous']
-          #   Opensuse::Authentication::HttpBasicEngine.new(configuration, environment)
-          #elsif ["X-HTTP-Authorization", "Authorization", "HTTP_AUTHORIZATION"].any? { |header| environment.keys.include?(header) } && configuration['ldap_mode'] == :on
           elsif ["X-HTTP-Authorization", "Authorization", "HTTP_AUTHORIZATION"].any? { |header| environment.keys.include?(header) } && ApplicationSettings::LdapMode.get.value == true
             Opensuse::Authentication::LdapEngine.new(configuration, environment)
           elsif ["X-HTTP-Authorization", "Authorization", "HTTP_AUTHORIZATION"].any? { |header| environment.keys.include?(header) }
