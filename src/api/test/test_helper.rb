@@ -6,6 +6,7 @@ SimpleCov.start 'rails' if ENV["DO_COVERAGE"]
 require File.expand_path('../../config/environment', __FILE__)
 require 'rails/test_help'
 require 'minitest/unit'
+require 'mocha/setup'
 
 require 'webmock/minitest'
 
