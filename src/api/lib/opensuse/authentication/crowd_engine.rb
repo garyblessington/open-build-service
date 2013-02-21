@@ -10,8 +10,7 @@ module Opensuse
       def initialize(configuration, environment)
         @configuration = configuration
         @environment = environment
-
-        if ApplicationSettings::AuthCrowdServer.get.value.present? && ApplicationSettings::AuthCrowdAppName.get.value.present? && ApplicationSettings::AuthCrowdAppPassword.get.value.present?
+        if ApplicationSettings::AuthCrowdServer.get.value && ApplicationSettings::AuthCrowdAppName.get.value && ApplicationSettings::AuthCrowdAppPassword.get.value
           @crowd_url = "http://#{ ApplicationSettings::AuthCrowdAppName.get.value }:#{ ApplicationSettings::AuthCrowdAppPassword.get.value }@#{ ApplicationSettings::AuthCrowdServer.get.value }"
         else
           @crowd_url = nil
