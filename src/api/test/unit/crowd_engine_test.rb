@@ -8,19 +8,29 @@ class CrowdEngineTest < ActiveSupport::TestCase
       'crowd_app_password' => 'app_password'
     }
 
+    ApplicationSettings::AuthCrowdServer.set!('127.0.0.1')
+    ApplicationSettings::AuthCrowdAppName.set!('obs-api')
+    ApplicationSettings::AuthCrowdAppPassword.set!('app_password')
+
     @environment = {}
 
     FakeWeb.allow_net_connect = false
   end
 
   def test_returns_nil_when_crowd_is_not_configured
-    @configuration = {}
+    ApplicationSettings::AuthCrowdServer.set!(nil)
+    ApplicationSettings::AuthCrowdAppName.set!(nil)
+    ApplicationSettings::AuthCrowdAppPassword.set!(nil)
+
     auth_engine = Opensuse::Authentication::CrowdEngine.new(@configuration, @environment)
     assert_equal nil, auth_engine.authenticate.first
   end
 
   def test_returns_a_message_when_crowd_is_not_configured
-    @configuration = {}
+    ApplicationSettings::AuthCrowdServer.set!(nil)
+    ApplicationSettings::AuthCrowdAppName.set!(nil)
+    ApplicationSettings::AuthCrowdAppPassword.set!(nil)
+
     auth_engine = Opensuse::Authentication::CrowdEngine.new(@configuration, @environment)
     assert_equal "No Crowd Application Configured", auth_engine.authenticate.last
   end
