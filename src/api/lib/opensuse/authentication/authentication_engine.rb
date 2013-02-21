@@ -19,7 +19,7 @@ module Opensuse
 
       private
         def determine_engine
-          if ApplicationSettings::AuthCrowdMode.get.value && ApplicationSettings::AuthCrowdServer.get.value && ApplicationSettings::AuthCrowdAppName.get.value && ApplicationSettings::AuthCrowdAppPassword.get.value &&
+          if ApplicationSettings::AuthCrowdMode.get.value.present? && ApplicationSettings::AuthCrowdServer.get.value.present? && ApplicationSettings::AuthCrowdAppName.get.value && ApplicationSettings::AuthCrowdAppPassword.get.value.present? &&
             environment_contains_valid_headers?
             Opensuse::Authentication::CrowdEngine.new(configuration, environment)
           elsif [:on, :simulate, 'on', 'simulate'].include?([ApplicationSettings::AuthIchainMode.get.value, configuration['proxy_auth_mode']].compact.uniq.last)
