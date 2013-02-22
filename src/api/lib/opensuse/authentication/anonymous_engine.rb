@@ -15,7 +15,7 @@ module Opensuse
         user = nil
 
         read_only_hosts = Array(configuration['read_only_hosts']) || []
-        read_only_hosts << ApplicationSettings::AuthWebuiHost.get.value if ApplicationSettings::AuthWebuiHost.get.value # This was used in config files until OBS 2.1
+        read_only_hosts << ApplicationSettings::AuthWebuiHost.get.value unless ApplicationSettings::AuthWebuiHost.get.value.blank? # This was used in config files until OBS 2.1
         return_message = ""
 
         if read_only_hosts.include?(environment['REMOTE_HOST']) || read_only_hosts.include?(environment['REMOTE_ADDR'])
