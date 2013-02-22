@@ -17,6 +17,10 @@ class CrowdEngineTest < ActiveSupport::TestCase
     FakeWeb.allow_net_connect = false
   end
 
+  def teardown
+    FakeWeb.clean_registry
+  end
+
   def test_returns_nil_when_crowd_is_not_configured
     ApplicationSettings::AuthCrowdServer.set!(nil)
     ApplicationSettings::AuthCrowdAppName.set!(nil)
