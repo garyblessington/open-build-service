@@ -19,6 +19,7 @@ class CrowdEngineTest < ActiveSupport::TestCase
 
   def teardown
     FakeWeb.clean_registry
+    FakeWeb.allow_net_connect = true
   end
 
   def test_returns_nil_when_crowd_is_not_configured
