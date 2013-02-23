@@ -56,6 +56,7 @@ class CrowdEngineTest < ActiveSupport::TestCase
       to_return(:status => 401, :body => "401 Unauthorized: Application failed to authenticate", :headers => {})
 
     @environment['X-HTTP_AUTHORIZATION'] = "Basic #{Base64.encode64('Joe:MyPassword')}"
+    user = nil
     auth_engine = Opensuse::Authentication::CrowdEngine.new(@configuration, @environment)
     user, message = auth_engine.authenticate
 
@@ -90,6 +91,7 @@ class CrowdEngineTest < ActiveSupport::TestCase
   end
 
   def test_returns_a_message_when_the_user_is_not_found_on_crowd
+    user = nil
     stub_request(:post, "http://obs-api:app_password@127.0.0.1/crowd/rest/usermanagement/latest/authentication?username=Joe").
       with(:body => "{\"value\":\"MyPassword\"}",
            :headers => {'Accept'=>'application/json', 'Accept-Encoding'=>'gzip, deflate', 'Content-Length'=>'22', 'Content-Type'=>'application/json', 'User-Agent'=>'Ruby'}).
@@ -104,6 +106,7 @@ class CrowdEngineTest < ActiveSupport::TestCase
   end
 
   def test_returns_a_message_when_no_password_is_provided
+    user = nil
     stub_request(:post, "http://obs-api:app_password@127.0.0.1/crowd/rest/usermanagement/latest/authentication?username=Joe").
       with(:body => "{\"value\":\"\"}",
            :headers => {'Accept'=>'application/json', 'Accept-Encoding'=>'gzip, deflate', 'Content-Length'=>'12', 'Content-Type'=>'application/json', 'User-Agent'=>'Ruby'}).
