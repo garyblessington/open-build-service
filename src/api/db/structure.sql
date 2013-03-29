@@ -227,30 +227,30 @@ CREATE TABLE `delayed_jobs` (
 
 CREATE TABLE `distribution_icons` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `url` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  `url` varchar(255) NOT NULL,
   `width` int(11) DEFAULT NULL,
   `height` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `distribution_icons_distributions` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `distribution_id` int(11) DEFAULT NULL,
   `distribution_icon_id` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `distributions` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `vendor` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
-  `version` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
-  `name` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
-  `project` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
-  `reponame` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
-  `repository` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
-  `link` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `vendor` varchar(255) NOT NULL,
+  `version` varchar(255) NOT NULL,
+  `name` varchar(255) NOT NULL,
+  `project` varchar(255) NOT NULL,
+  `reponame` varchar(255) NOT NULL,
+  `repository` varchar(255) NOT NULL,
+  `link` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `downloads` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -552,6 +552,7 @@ CREATE TABLE `repositories` (
   `hostsystem_id` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `projects_name_index` (`db_project_id`,`name`,`remote_project_name`),
+  UNIQUE KEY `db_project_id_2` (`db_project_id`,`name`,`remote_project_name`),
   KEY `remote_project_name_index` (`remote_project_name`),
   KEY `hostsystem_id` (`hostsystem_id`),
   CONSTRAINT `repositories_ibfk_1` FOREIGN KEY (`db_project_id`) REFERENCES `projects` (`id`),
@@ -1045,6 +1046,8 @@ INSERT INTO schema_migrations (version) VALUES ('20121120110642');
 
 INSERT INTO schema_migrations (version) VALUES ('20121120124300');
 
+INSERT INTO schema_migrations (version) VALUES ('20121120155310');
+
 INSERT INTO schema_migrations (version) VALUES ('20121121142111');
 
 INSERT INTO schema_migrations (version) VALUES ('20121124032111');
@@ -1061,13 +1064,13 @@ INSERT INTO schema_migrations (version) VALUES ('20121216151549');
 
 INSERT INTO schema_migrations (version) VALUES ('20121220151549');
 
+INSERT INTO schema_migrations (version) VALUES ('20121230085930');
+
 INSERT INTO schema_migrations (version) VALUES ('20130111085930');
 
 INSERT INTO schema_migrations (version) VALUES ('20130220160000');
 
 INSERT INTO schema_migrations (version) VALUES ('20130301100000');
-
-INSERT INTO schema_migrations (version) VALUES ('20121120155310');
 
 INSERT INTO schema_migrations (version) VALUES ('21');
 
