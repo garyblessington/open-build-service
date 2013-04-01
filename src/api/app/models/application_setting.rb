@@ -36,7 +36,7 @@ class ApplicationSetting < ActiveRecord::Base
       :AuthCrowdServer => ApplicationSettings::AuthCrowdServer.get.value,
       :AuthCrowdAppName => ApplicationSettings::AuthCrowdAppName.get.value,
       :AuthCrowdAppPassword => ApplicationSettings::AuthCrowdAppPassword.get.value,
-      :AuthAllowAnonymous => ApplicationSettings::AuthAllowAnonymous.get.value,
+      #:AuthAllowAnonymous => ApplicationSettings::AuthAllowAnonymous.get.value,
       :AuthReadOnlyHosts => ApplicationSettings::AuthReadOnlyHosts.get.value,
       :AuthWebuiHost => ApplicationSettings::AuthWebuiHost.get.value,
       :LdapMode => ApplicationSettings::LdapMode.get.value,
