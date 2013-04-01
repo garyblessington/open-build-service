@@ -78,8 +78,8 @@ class Project < ActiveRecord::Base
       user = User.find(user_id)
     end
 
-    cache_key = "projects_user_#{ user.id }"
-    user_project_ids_cache = Rails.cache.fetch(cache_key) do
+    #cache_key = "projects_user_#{ user.id }"
+    #user_project_ids_cache = Rails.cache.fetch(cache_key) do
       project_ids = []
       user_groups = user.accessible_groups.map(&:id).join(', ')
       user_groups = "0" if user_groups.blank?
@@ -97,9 +97,9 @@ class Project < ActiveRecord::Base
       project_ids << 0 if project_ids.empty?
       logger.debug "User is forbidden to access project IDs #{ project_ids.inspect }"
       project_ids
-    end
+    #end
 
-    user_project_ids_cache
+    #user_project_ids_cache
   end
 
   def download_name
