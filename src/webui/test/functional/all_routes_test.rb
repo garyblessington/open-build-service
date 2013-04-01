@@ -210,7 +210,7 @@ class AllRoutesTest < ActionController::IntegrationTest
     urls << group_edit_path
     urls << home_path
     #urls << home_my_work_path
-    urls << home_list_my_path
+    #urls << home_list_my_path
     urls << home_requests_path
     urls << home_home_project_path
     urls << home_remove_watched_project_path
