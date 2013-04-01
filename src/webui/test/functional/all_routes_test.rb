@@ -4,7 +4,7 @@ require 'nokogiri'
 class AllRoutesTest < ActionController::IntegrationTest
 
   test "visit all routes" do
-    # rake routes | cut -b-40 | sed -e 's,  *,,g' | grep -v '^$' | sed -e 's,^\(.*\),    urls << \1_path,' 
+    # rake routes | cut -b-40 | sed -e 's,  *,,g' | grep -v '^$' | sed -e 's,^\(.*\),    urls << \1_path,'
     urls = Array.new
     urls << main_systemstatus_path
     urls << main_news_path
@@ -209,7 +209,7 @@ class AllRoutesTest < ActionController::IntegrationTest
     urls << group_tokens_path
     urls << group_edit_path
     urls << home_path
-    urls << home_my_work_path
+    #urls << home_my_work_path
     urls << home_list_my_path
     urls << home_requests_path
     urls << home_home_project_path
@@ -244,6 +244,6 @@ class AllRoutesTest < ActionController::IntegrationTest
       end
     end
   end
-  
+
 end
 
