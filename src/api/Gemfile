@@ -23,7 +23,7 @@ gem 'ruby-ldap', :require => false
 gem 'rake', '~>0.9.2'
 gem 'omniauth', '~>1.1.1'
 gem 'hashie'
-gem 'ruby-ldap', '~> 0.9.12'
+gem 'ruby-ldap'
 gem "rest-client", "~> 1.6.7"
 
 group :test do
