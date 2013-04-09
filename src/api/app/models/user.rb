@@ -1400,7 +1400,7 @@ class User < ActiveRecord::Base
 
     rescue LDAP::ResultError
       if not conn.nil?
-        conn.unbind()
+        conn.unbind() if conn.bound?
       end
       Rails.logger.debug "Not bound:  error #{ conn.err } for #{ user_name }"
       return nil
