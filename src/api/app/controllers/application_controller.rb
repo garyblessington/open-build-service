@@ -204,7 +204,7 @@ class ApplicationController < ActionController::API
 
     auth_engine = Opensuse::Authentication::AuthenticationEngine.new(CONFIG, request.env)
 
-    Rails.logger.debug "DEBUG: ENGINE #{auth_engine.engine.inspect}"
+    #Rails.logger.debug "DEBUG: ENGINE #{auth_engine.engine.inspect}"
 
     unless auth_engine.engine
       render_error( :message => "Authentication required", :status => 401 )

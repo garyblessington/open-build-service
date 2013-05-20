@@ -152,7 +152,8 @@ DEPENDENCIES
   rails-api
   rake (~> 0.9.2)
   rdoc
-  ruby-ldap (0.9.12)
+  rest-client (~> 1.6.7)
+  ruby-ldap
   simplecov-rcov
   timecop
   webmock (>= 1.9.0)
