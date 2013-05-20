@@ -9,7 +9,7 @@ class Group < ActiveXML::Node
       members = []
       members = opt[:members].split(',') if opt.has_key? :members
 
-      reply = "<group><title>#{opt[:name]}</title>"
+      reply = "<group><title>#{opt[:name]}</title><ldap_group_member_of_validation>#{ opt[:ldap_group_member_of_validation] }</ldap_group_member_of_validation>"
       if members.length > 0
         reply << "<person>"
         members.each do |person|

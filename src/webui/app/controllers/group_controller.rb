@@ -48,8 +48,8 @@ class GroupController < ApplicationController
     rescue ActiveXML::Transport::Error => e
       flash[:error] = e.message
     end
-    flash[:success] = "Group '#{group.title}' successfully updated."
-    Rails.cache.delete("group_#{group.title}")
+    flash[:success] = "Group '#{ group.title }' successfully updated."
+    Group.free_cache(:title => group.title)
     if @user and @user.is_admin?
       redirect_to :controller => :configuration, :action => :groups
     else
